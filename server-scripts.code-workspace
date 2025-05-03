@@ -1,0 +1,294 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"highlight.regexes": {
+			"(Log)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
+				"decorations": [
+					{ "color": "#c0b300" },
+					{ "color": "#ffffff" },
+					{ "color": "#c0b300" },
+					{ "color": "#ffffff" },
+					{ "color": "#c0b300" },
+					{ "color": "#ffffff" },
+					{ "color": "#c0b300" },
+					{ "color": "#ffffff" },
+					{ "color": "#c0b300" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(Firewall)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
+				"decorations": [
+					{ "color": "#e11dbd" },
+					{ "color": "#ffffff" },
+					{ "color": "#e11dbd" },
+					{ "color": "#ffffff" },
+					{ "color": "#e11dbd" },
+					{ "color": "#ffffff" },
+					{ "color": "#e11dbd" },
+					{ "color": "#ffffff" },
+					{ "color": "#e11dbd" },
+					{ "color": "#ffffff" }
+				]
+			},
+
+			"(#)(USAGE)(:)( )": {
+				"filterFileRegex": ".*$",
+				"regexFlags": "gm",
+				"decorations": [
+						{ "backgroundColor": "#0066ff", "color": "#0066ff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "5px 0px 0px 5px", "borderWidth": "1px 0px 1px 1px" },
+						{ "backgroundColor": "#0066ff", "color": "#ffffff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 0px 0px 0px", "borderWidth": "1px 0px 1px 0px" },
+						{ "backgroundColor": "#0066ff", "color": "#0066ff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 5px 5px 0px", "borderWidth": "1px 1px 1px 0px" },
+						{}
+				]
+			},
+			"(#)(DESC)(:)( )(.*$)": {
+				"filterFileRegex": ".*$",
+				"regexFlags": "gm",
+				"decorations": [
+						{ "backgroundColor": "#168046", "color": "#168046", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "5px 0px 0px 5px", "borderWidth": "1px 0px 1px 1px" },
+						{ "backgroundColor": "#168046", "color": "#ffffff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 0px 0px 0px", "borderWidth": "1px 0px 1px 0px" },
+						{ "backgroundColor": "#168046", "color": "#168046", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 5px 5px 0px", "borderWidth": "1px 1px 1px 0px" },
+						{}, { "color": "#0dca62" }
+				]
+			},
+			"(#)(INFO)(:)( )(.*$)": {
+				"filterFileRegex": ".*$",
+				"regexFlags": "gm",
+				"decorations": [
+						{ "backgroundColor": "#6e8016", "color": "#6e8016", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "5px 0px 0px 5px", "borderWidth": "1px 0px 1px 1px" },
+						{ "backgroundColor": "#6e8016", "color": "#ffffff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 0px 0px 0px", "borderWidth": "1px 0px 1px 0px" },
+						{ "backgroundColor": "#6e8016", "color": "#6e8016", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 5px 5px 0px", "borderWidth": "1px 1px 1px 0px" },
+						{}, { "color": "#94ca0d" }
+				]
+			},
+			"(#)(RETURN)(:)( )": {
+				"filterFileRegex": ".*$",
+				"regexFlags": "gm",
+				"decorations": [
+						{ "backgroundColor": "#94187d", "color": "#94187d", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "5px 0px 0px 5px", "borderWidth": "1px 0px 1px 1px" },
+						{ "backgroundColor": "#94187d", "color": "#ffffff", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 0px 0px 0px", "borderWidth": "1px 0px 1px 0px" },
+						{ "backgroundColor": "#94187d", "color": "#94187d", "fontWeight": "bold", "borderStyle": "solid", "borderColor": "#ffffff", "borderRadius": "0px 5px 5px 0px", "borderWidth": "1px 1px 1px 0px" },
+						{}
+				]
+			},
+
+			"( )(Usage|Returns)(:)( )": {
+				"regexFlags": "gm",
+				"decorations": [
+					{},
+					{ "color": "#82e11d" },
+					{ "color": "#ffffff" },
+					{}
+				]
+			},
+			"(^|\\$)(\\{)?(!|#)?(LOG)(_)(FILE|ERROR)(:\\-|%|#)?(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#f2b307" },
+					{ "color": "#c0b300" },
+					{ "color": "#635757" },
+					{ "color": "#c0b300" },
+					{ "color": "#f2b307" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^|\\$)(\\{)?(COLOR|BOLD)(_)([A-Z]+)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#3c5466" },
+					{ "color": "#635757" },
+					{ "color": "#3c5466" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^|\\$)(\\{)?(TRUE|SUCCESS)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#0ab218" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(\\&\\&)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#0ab218" }
+				]
+			},
+			"(^|\\$)(\\{)?(FALSE|ERROR)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#b20a0a" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(\\|\\|)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#b20a0a" }
+				]
+			},
+			"(^|\\$)(\\{)?(WARNING)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#b2ac0a" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^|\\$)(\\{)?(DEBUG)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#5ddd1d" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(Output)(:)(Success)?(Error)?(Warning)?(Info)?(Debug)?(Log)?([A-Z][a-z]+)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#008aac" },
+					{ "color": "#ffffff" },
+					{ "color": "#42b20a" },
+					{ "color": "#b20a0a" },
+					{ "color": "#b2ac0a" },
+					{ "color": "#3183da" },
+					{ "color": "#5ddd1d" },
+					{ "color": "#e114c2" },
+					{ "color": "#008aac" }
+				]
+			},
+			"(^|\\$)(\\{)?(INFO)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#3183da" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^[ ]*)(if|fi|local|else|elif|return|then|case|esac|while|for)( |$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#008aac" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"( )(then|in|done|do)($)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#008aac" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^| )(echo|eval|read|in)( )": {
+				"regexFlags": "gm",
+				"decorations": [
+					{},
+					{ "color": "#008aac" },
+					{}
+				]
+			},
+			"( |\\()(firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl)( )": {
+				"regexFlags": "gm",
+				"decorations": [
+					{},
+					{ "color": "#0dbae5" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"( )([-]{1,2})([A-Za-z0-9-]+)( |=)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{},
+					{ "color": "#42d9ff" },
+					{ "color": "#008aac" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(\\<|\\$| )(\\{)?([!#])?(log_file|log_line|zone_name|interface_name|interfaces|interface|source|target|variable_name|ports|port|protocols|protocol|service_name|services|zones|active_zones)(:\\-|%|#)?(\\}|\\>|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#f2b307" },
+					{ "color": "#9f790f" },
+					{ "color": "#f2b307" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"( \\|| >{1,2}| [\\[\\]]{1,2}| \\\\)( |;|/|\\(|$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ddcf0a" }, {}
+				]
+			},
+			"(>|IFS)(\\(|=)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ddcf0a" }, { "color": "#ffffff" }
+				]
+			},
+			"(2)(>)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#f2b307" }, { "color": "#ddcf0a" }
+				]
+			},
+			"(/)(dev)(/)(null)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#f99f05" },
+					{ "color": "#996921" },
+					{ "color": "#f99f05" },
+					{ "color": "#996921" }
+				]
+			},
+			"(#)( )([\\-]{1,69})($)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{},
+					{ "color": "#f2b307" },
+					{}
+				]
+			},
+
+
+			"(\\$)(\\()": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#e114c2" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(\\\"|\\)|\\)|\\'|\\{|\\})": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" }
+				]
+			},
+		},
+		"highlight.maxMatches": 3000
+	},
+	"extensions": {
+		"recommendations": [
+			"fabiospampinato.vscode-highlight"
+		]
+	}
+}
