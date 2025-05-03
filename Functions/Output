@@ -1,0 +1,74 @@
+
+# ---------------------------------------------------------------
+#DESC: Output success messages to the console
+# ---------------------------------------------------------------
+#USAGE: Output:Success "Your success message here"
+# ---------------------------------------------------------------
+Output:Success() {
+    echo -e "  ${SUCCESS} $1"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output error messages to the console
+# ---------------------------------------------------------------
+#USAGE: Output:Error "Your error message here"
+# ---------------------------------------------------------------
+Output:Error() {
+    echo -e "  ${ERROR} $1"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output warning messages to the console
+# ---------------------------------------------------------------
+#USAGE: Output:Warning "Your warning message here"
+# ---------------------------------------------------------------
+Output:Warning() {
+    echo -e "  ${WARNING} $1"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output informational messages to the console
+# ---------------------------------------------------------------
+#USAGE: Output:Info "Your informational message here"
+# ---------------------------------------------------------------
+Output:Info() {
+    echo -e "  ${INFO} $1"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output debug messages to the console
+# ---------------------------------------------------------------
+#USAGE: Output:Debug "Your debug message here"
+# ---------------------------------------------------------------
+Output:Debug() {
+    echo -e "  ${DEBUG} $1"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output a header for sections in the console
+# ---------------------------------------------------------------
+#USAGE: Output:Header "Your header title here"
+# ---------------------------------------------------------------
+Output:Header() {
+    echo -e "\n${BOLD_BLUE}------------------------------------------------------------${BOLD_RESET}"
+    echo -e "${BOLD_CYAN}$1${BOLD_RESET}"
+    echo -e "${BOLD_BLUE}------------------------------------------------------------${BOLD_RESET}"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output a title for sections in the console
+# ---------------------------------------------------------------
+#USAGE: Output:Title "Your title here"
+# ---------------------------------------------------------------
+Output:Title() {
+    echo -e "\n${BOLD_YELLOW}$1${BOLD_RESET}"
+}
+
+# ---------------------------------------------------------------
+#DESC: Output a summary section message in the console
+# ---------------------------------------------------------------
+#USAGE: Output:Summary "Your summary message here"
+# ---------------------------------------------------------------
+Output:Summary() {
+    echo -e "\n${BOLD_GREEN}$1${BOLD_RESET}"
+}
