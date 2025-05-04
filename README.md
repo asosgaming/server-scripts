@@ -106,3 +106,61 @@ This section contains functions specific to Ubuntu systems. The functions allow 
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Service}{\color{#ffffff}:}{\color{#ff7f00}Stop}$|Stop a service on the system.
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Service}{\color{#ffffff}:}{\color{#ff7f00}Unmask}$|Unmask a service to allow it to be started again.
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Services}{\color{#ffffff}:}{\color{#ff7f00}Reload}$|Reload the systemd manager configuration on Ubuntu.
+
+## File Functions
+This section contains functions specific to file management. The functions allow you to set permissions, flags, and retrieve file system information.
+
+|Name|Description|
+| --- | --- |
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Create}{\color{#ffffff}:}{\color{#1d68e1}Empty}$|Create an empty file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Create}$|Create a new file or directory.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Delete}$|Delete a file or directory.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Directory}$|Check if a file is a directory.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Executable}$|Check if a file is executable.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Exists}$|Check if a file or directory exists.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}ACL}$|Get the Access Control List (ACL) of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Device}$|Get the device number of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}ExtendedAttributes}$|Get the extended attributes of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Filesystem}$|Get the filesystem type of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Flags}$|Get the flags of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}FreeInodes}$|Get the free inodes available on the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}FreeSpace}$|Get the free space available on the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Group}$|Get the group of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Inode}$|Get the inode number of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Inodes}$|Get the inode usage statistics of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Label}$|Get the label of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}MountOptions}$|Get the mount options of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}MountPoint}$|Get the mount point of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Owner}$|Get the owner of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Permissions}$|Get the permissions of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}SecurityLabel}$|Get the security label of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}SELinuxContext}$|Get the SELinux context of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Symlink}$|Get the target of a symbolic link.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}TotalInodes}$|Get the total inodes of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}TotalSpace}$|Get the total space of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Type}$|Get the type of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}Usage}$|Get the usage statistics of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}UsedInodes}$|Get the used inodes of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}UsedSpace}$|Get the used space of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Get}{\color{#ffffff}:}{\color{#1d68e1}UUID}$|Get the UUID of the filesystem containing a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Immutable}$|Check if a file is immutable (cannot be modified).
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Modified}$|Get the last modified time of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Readable}$|Check if a file is readable.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Regular}$|Check if a file is a regular file (not a directory or special file).
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}AccessTime}$|Set the access time of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}ACL}$|Set the Access Control List (ACL) of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}ChangeTime}$|Set the change time of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}ExtendedAttributes}$|Set the extended attributes of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}Flags}$|Set the flags of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}Immutable}$|Set a file as immutable (cannot be modified).
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}ModificationTime}$|Set the modification time of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}Owner}$|Set the owner of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}Permissions}$|Set the permissions of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}SecurityLabel}$|Set the security label of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Set}{\color{#ffffff}:}{\color{#1d68e1}SELinuxContext}$|Set the SELinux context of a file.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Size}$|Get the size of a file in bytes.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}SymbolicLink}$|Check if a file is a symbolic link.
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Unset}{\color{#ffffff}:}{\color{#1d68e1}Immutable}$|Unset the immutable flag of a file (allow modifications).
+|${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Writable}$|Check if a file is writable.
+
+
