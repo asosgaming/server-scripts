@@ -1,0 +1,1651 @@
+
+#* ---------------------------------------------------------------
+#? #DESC: Create a file on the system
+#? ---------------------------------------------------------------
+#? #USAGE: File:Create <file_path> <file_content> <file_user> <file_group> <file_permissions>
+#? #RETURN: $TRUE if the file was successfully created, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Create() {
+    local file_path="$1"
+    local file_content="$2"
+    local file_user="$3"
+    local file_group="$4"
+    local file_permissions="$5"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -e "${file_path}" ]]; then
+        Output:Warning "${COLOR_YELLOW}${file_path}${COLOR_RESET} already exists. Overwriting..."
+        if [[ ! -w "${file_path}" ]]; then
+            Output:Error "Cannot write to ${file_path}. Check permissions."
+            return $FALSE
+        fi
+    fi
+
+    echo -n "${file_content}" > "${file_path}"
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to create file at ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    else
+        Output:Success "File created at ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+    fi
+    
+    if [[ -n "${file_user}" ]]; then
+        chown "${file_user}" "${file_path}" > >(Log:Output) 2> >(Log:Error)
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to change owner to ${COLOR_YELLOW}${file_user}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+            return $FALSE
+        else
+            Output:Success "Owner changed to ${COLOR_YELLOW}${file_user}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        fi
+    fi
+    
+    if [[ -n "${file_group}" ]]; then
+        chgrp "${file_group}" "${file_path}" > >(Log:Output) 2> >(Log:Error)
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to change group to ${COLOR_YELLOW}${file_group}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+            return $FALSE
+        else
+            Output:Success "Group changed to ${COLOR_YELLOW}${file_group}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        fi
+    fi
+    
+    if [[ -n "${file_permissions}" ]]; then
+        chmod "${file_permissions}" "${file_path}" > >(Log:Output) 2> >(Log:Error)
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to set permissions ${COLOR_YELLOW}${file_permissions}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+            return $FALSE
+        else
+            Output:Success "Permissions set to ${COLOR_YELLOW}${file_permissions}${COLOR_RESET} for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        fi
+    fi
+
+    Output:Success "File created successfully: ${file_path}"
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Create a empty file on the system
+#? ---------------------------------------------------------------
+#? #USAGE: File:Create:Empty <file_path> <file_user> <file_group> <file_permissions>
+#? #RETURN: $TRUE if the file was successfully created, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Create:Empty() {
+    local file_path="$1"
+    local file_user="$2"
+    local file_group="$3"
+    local file_permissions="$4"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    File:Create "${file_path}" "" "${file_user}" "${file_group}" "${file_permissions}"
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Delete a file from the system
+#? ---------------------------------------------------------------
+#? #USAGE: File:Delete <file_path>
+#? #RETURN: $TRUE if the file was successfully deleted, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Delete() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Warning "${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist. Nothing to delete."
+        return $TRUE
+    fi
+
+    rm -f "${file_path}" > >(Log:Output) 2> >(Log:Error)
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to delete file at ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    else
+        Output:Success "Deleted ${file_path}."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file exists on the system
+#? ---------------------------------------------------------------
+#? #USAGE: File:Exists <file_path>
+#? #RETURN: $TRUE if the file exists, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Exists() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -e "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} exists."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is a regular file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Regular <file_path>
+#? #RETURN: $TRUE if the file is a regular file, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Regular() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -f "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is a regular file."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not a regular file."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is a directory
+#? ---------------------------------------------------------------
+#? #USAGE: File:Directory <file_path>
+#? #RETURN: $TRUE if the file is a directory, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Directory() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -d "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is a directory."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not a directory."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is readable
+#? ---------------------------------------------------------------
+#? #USAGE: File:Readable <file_path>
+#? #RETURN: $TRUE if the file is readable, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Readable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -r "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is readable."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not readable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is writable
+#? ---------------------------------------------------------------
+#? #USAGE: File:Writable <file_path>
+#? #RETURN: $TRUE if the file is writable, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Writable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -w "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is writable."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not writable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is executable
+#? ---------------------------------------------------------------
+#? #USAGE: File:Executable <file_path>
+#? #RETURN: $TRUE if the file is executable, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Executable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -x "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is executable."
+        return $TRUE
+    else
+        Output:Warning "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not executable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the size of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Size <file_path> <file_size_variable>
+#? #INFO: <file_size> is a variable that will be set to the size of the file in bytes
+#? #RETURN: $TRUE if the file size was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Size() {
+    local file_path="$1"
+    local file_size="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    file_size=$(stat -c%s "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_size}" ]; then
+        if [ -n "${file_size_variable}" ]; then
+            eval "${file_size_variable}=${file_size}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File size of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_size} bytes."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file size for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the last modified time of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Modified <file_path> <file_time_variable>
+#? #INFO: <file_time> is a variable that will be set to the last modified time of the file in seconds since epoch
+#? #RETURN: $TRUE if the last modified time was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Modified() {
+    local file_path="$1"
+    local file_time_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_time=$(stat -c%Y "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_time}" ]; then
+        if [ -n "${file_time_variable}" ]; then
+            eval "${file_time_variable}=${file_time}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Last modified time of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_time} seconds since epoch."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve last modified time for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the owner of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Owner <file_path> <file_owner_variable>
+#? #INFO: <file_owner> is a variable that will be set to the owner of the file
+#? #RETURN: $TRUE if the owner was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Owner() {
+    local file_path="$1"
+    local file_owner_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_owner=$(stat -c%U "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_owner}" ]; then
+        if [ -n "${file_owner_variable}" ]; then
+            eval "${file_owner_variable}=${file_owner}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Owner of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_owner}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve owner for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the group of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Group <file_path> <file_group_variable>
+#? #INFO: <file_group> is a variable that will be set to the group of the file
+#? #RETURN: $TRUE if the group was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Group() {
+    local file_path="$1"
+    local file_group_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_group=$(stat -c%G "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_group}" ]; then
+        if [ -n "${file_group_variable}" ]; then
+            eval "${file_group_variable}=${file_group}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Group of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_group}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve group for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the permissions of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Permissions <file_path> <file_permissions_variable>
+#? #INFO: <file_permissions> is a variable that will be set to the permissions of the file in octal format
+#? #RETURN: $TRUE if the permissions were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Permissions() {
+    local file_path="$1"
+    local file_permissions_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_permissions=$(stat -c%a "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_permissions}" ]; then
+        if [ -n "${file_permissions_variable}" ]; then
+            eval "${file_permissions_variable}=${file_permissions}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Permissions of ${COLOR_YELLOW}${file_path}${COLOR_RESET} are ${file_permissions}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve permissions for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the type of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Type <file_path> <file_type_variable>
+#? #INFO: <file_type> is a variable that will be set to the type of the file (regular, directory, symlink, etc.)
+#? #RETURN: $TRUE if the type was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Type() {
+    local file_path="$1"
+    local file_type_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_type=$(stat -c%F "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_type}" ]; then
+        if [ -n "${file_type_variable}" ]; then
+            eval "${file_type_variable}=${file_type}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Type of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_type}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve type for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the inode number of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Inode <file_path> <file_inode_variable>
+#? #INFO: <file_inode> is a variable that will be set to the inode number of the file
+#? #RETURN: $TRUE if the inode number was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Inode() {
+    local file_path="$1"
+    local file_inode_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_inode=$(stat -c%i "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_inode}" ]; then
+        if [ -n "${file_inode_variable}" ]; then
+            eval "${file_inode_variable}=${file_inode}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Inode of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_inode}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve inode for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the device number of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Device <file_path> <file_device_variable>
+#? #INFO: <file_device> is a variable that will be set to the device number of the file
+#? #RETURN: $TRUE if the device number was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Device() {
+    local file_path="$1"
+    local file_device_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_device=$(stat -c%d "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_device}" ]; then
+        if [ -n "${file_device_variable}" ]; then
+            eval "${file_device_variable}=${file_device}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Device of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_device}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve device for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the symlink target of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Symlink <file_path> <file_symlink_variable>
+#? #INFO: <file_symlink> is a variable that will be set to the symlink target of the file
+#? #RETURN: $TRUE if the symlink target was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Symlink() {
+    local file_path="$1"
+    local file_symlink_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -L "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not a symlink."
+        return $FALSE
+    fi
+
+    local file_symlink=$(readlink "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_symlink}" ]; then
+        if [ -n "${file_symlink_variable}" ]; then
+            eval "${file_symlink_variable}=${file_symlink}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "Symlink target of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_symlink}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve symlink target for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system type of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Filesystem <file_path> <file_filesystem_variable>
+#? #INFO: <file_filesystem> is a variable that will be set to the file system type of the file
+#? #RETURN: $TRUE if the file system type was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Filesystem() {
+    local file_path="$1"
+    local file_filesystem_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_filesystem=$(df -T "${file_path}" | tail -1 | awk '{print $2}' 2> >(Log:Error))
+    if [ -n "${file_filesystem}" ]; then
+        if [ -n "${file_filesystem_variable}" ]; then
+            eval "${file_filesystem_variable}=${file_filesystem}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system type of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_filesystem}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system type for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system UUID of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:UUID <file_path> <file_uuid_variable>
+#? #INFO: <file_uuid> is a variable that will be set to the file system UUID of the file
+#? #RETURN: $TRUE if the file system UUID was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:UUID() {
+    local file_path="$1"
+    local file_uuid_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_uuid=$(blkid -o value -s UUID "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_uuid}" ]; then
+        if [ -n "${file_uuid_variable}" ]; then
+            eval "${file_uuid_variable}=${file_uuid}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system UUID of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_uuid}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system UUID for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system label of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Label <file_path> <file_label_variable>
+#? #INFO: <file_label> is a variable that will be set to the file system label of the file
+#? #RETURN: $TRUE if the file system label was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Label() {
+    local file_path="$1"
+    local file_label_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_label=$(blkid -o value -s LABEL "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_label}" ]; then
+        if [ -n "${file_label_variable}" ]; then
+            eval "${file_label_variable}=${file_label}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system label of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_label}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system label for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system mount point of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:MountPoint <file_path> <file_mount_point_variable>
+#? #INFO: <file_mount_point> is a variable that will be set to the file system mount point of the file
+#? #RETURN: $TRUE if the file system mount point was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:MountPoint() {
+    local file_path="$1"
+    local file_mount_point_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_mount_point=$(df "${file_path}" | tail -1 | awk '{print $6}' 2> >(Log:Error))
+    if [ -n "${file_mount_point}" ]; then
+        if [ -n "${file_mount_point_variable}" ]; then
+            eval "${file_mount_point_variable}=${file_mount_point}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system mount point of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_mount_point}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system mount point for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system usage of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Usage <file_path> <file_usage_variable>
+#? #INFO: <file_usage> is a variable that will be set to the file system usage of the file in percentage
+#? #RETURN: $TRUE if the file system usage was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Usage() {
+    local file_path="$1"
+    local file_usage_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_usage=$(df "${file_path}" | tail -1 | awk '{print $5}' 2> >(Log:Error))
+    if [ -n "${file_usage}" ]; then
+        if [ -n "${file_usage_variable}" ]; then
+            eval "${file_usage_variable}=${file_usage}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system usage of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_usage}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system usage for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system free space of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:FreeSpace <file_path> <file_free_space_variable>
+#? #INFO: <file_free_space> is a variable that will be set to the file system free space of the file in bytes
+#? #RETURN: $TRUE if the file system free space was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:FreeSpace() {
+    local file_path="$1"
+    local file_free_space_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_free_space=$(df --block-size=1 "${file_path}" | tail -1 | awk '{print $4}' 2> >(Log:Error))
+    if [ -n "${file_free_space}" ]; then
+        if [ -n "${file_free_space_variable}" ]; then
+            eval "${file_free_space_variable}=${file_free_space}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system free space of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_free_space} bytes."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system free space for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system total space of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:TotalSpace <file_path> <file_total_space_variable>
+#? #INFO: <file_total_space> is a variable that will be set to the file system total space of the file in bytes
+#? #RETURN: $TRUE if the file system total space was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:TotalSpace() {
+    local file_path="$1"
+    local file_total_space_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_total_space=$(df --block-size=1 "${file_path}" | tail -1 | awk '{print $2}' 2> >(Log:Error))
+    if [ -n "${file_total_space}" ]; then
+        if [ -n "${file_total_space_variable}" ]; then
+            eval "${file_total_space_variable}=${file_total_space}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system total space of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_total_space} bytes."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system total space for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system used space of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:UsedSpace <file_path> <file_used_space_variable>
+#? #INFO: <file_used_space> is a variable that will be set to the file system used space of the file in bytes
+#? #RETURN: $TRUE if the file system used space was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+# File:Get:UsedSpace() {
+    local file_path="$1"
+    local file_used_space_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_used_space=$(df --block-size=1 "${file_path}" | tail -1 | awk '{print $3}' 2> >(Log:Error))
+    if [ -n "${file_used_space}" ]; then
+        if [ -n "${file_used_space_variable}" ]; then
+            eval "${file_used_space_variable}=${file_used_space}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system used space of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_used_space} bytes."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system used space for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system inodes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Inodes <file_path> <file_inodes_variable>
+#? #INFO: <file_inodes> is a variable that will be set to the file system inodes of the file in percentage
+#? #RETURN: $TRUE if the file system inodes were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Inodes() {
+    local file_path="$1"
+    local file_inodes_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_inodes=$(df -i "${file_path}" | tail -1 | awk '{print $5}' 2> >(Log:Error))
+    if [ -n "${file_inodes}" ]; then
+        if [ -n "${file_inodes_variable}" ]; then
+            eval "${file_inodes_variable}=${file_inodes}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system inodes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_inodes}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system inodes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system free inodes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:FreeInodes <file_path> <file_free_inodes_variable>
+#? #INFO: <file_free_inodes> is a variable that will be set to the file system free inodes of the file in percentage
+#? #RETURN: $TRUE if the file system free inodes were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:FreeInodes() {
+    local file_path="$1"
+    local file_free_inodes_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_free_inodes=$(df -i "${file_path}" | tail -1 | awk '{print $4}' 2> >(Log:Error))
+    if [ -n "${file_free_inodes}" ]; then
+        if [ -n "${file_free_inodes_variable}" ]; then
+            eval "${file_free_inodes_variable}=${file_free_inodes}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system free inodes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_free_inodes}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system free inodes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system total inodes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:TotalInodes <file_path> <file_total_inodes_variable>
+#? #INFO: <file_total_inodes> is a variable that will be set to the file system total inodes of the file in percentage
+#? #RETURN: $TRUE if the file system total inodes were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:TotalInodes() {
+    local file_path="$1"
+    local file_total_inodes_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_total_inodes=$(df -i "${file_path}" | tail -1 | awk '{print $2}' 2> >(Log:Error))
+    if [ -n "${file_total_inodes}" ]; then
+        if [ -n "${file_total_inodes_variable}" ]; then
+            eval "${file_total_inodes_variable}=${file_total_inodes}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system total inodes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_total_inodes}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system total inodes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system used inodes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:UsedInodes <file_path> <file_used_inodes_variable>
+#? #INFO: <file_used_inodes> is a variable that will be set to the file system used inodes of the file in percentage
+#? #RETURN: $TRUE if the file system used inodes were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:UsedInodes() {
+    local file_path="$1"
+    local file_used_inodes_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_used_inodes=$(df -i "${file_path}" | tail -1 | awk '{print $3}' 2> >(Log:Error))
+    if [ -n "${file_used_inodes}" ]; then
+        if [ -n "${file_used_inodes_variable}" ]; then
+            eval "${file_used_inodes_variable}=${file_used_inodes}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system used inodes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_used_inodes}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system used inodes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system mount options of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:MountOptions <file_path> <file_mount_options_variable>
+#? #INFO: <file_mount_options> is a variable that will be set to the file system mount options of the file
+#? #RETURN: $TRUE if the file system mount options were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:MountOptions() {
+    local file_path="$1"
+    local file_mount_options_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_mount_options=$(findmnt -o OPTIONS --target "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_mount_options}" ]; then
+        if [ -n "${file_mount_options_variable}" ]; then
+            eval "${file_mount_options_variable}=${file_mount_options}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system mount options of ${COLOR_YELLOW}${file_path}${COLOR_RESET} are ${file_mount_options}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system mount options for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is immutable
+#? ---------------------------------------------------------------
+#? #USAGE: File:Immutable <file_path>
+#? #INFO: Checks if the file is immutable (cannot be modified or deleted)
+#? #RETURN: $TRUE if the file is immutable, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Immutable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if [[ $(lsattr "${file_path}" 2> >(Log:Error)) == *i* ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is immutable."
+        return $TRUE
+    else
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not immutable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set a file as immutable
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:Immutable <file_path>
+#? #INFO: Sets the file as immutable (cannot be modified or deleted)
+#? #RETURN: $TRUE if the file was successfully set as immutable, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:Immutable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if chattr +i "${file_path}" 2> >(Log:Error); then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} has been set as immutable."
+        return $TRUE
+    else
+        Output:Error "Failed to set file ${COLOR_YELLOW}${file_path}${COLOR_RESET} as immutable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Remove the immutable attribute from a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Unset:Immutable <file_path>
+#? #INFO: Removes the immutable attribute from the file (allows modification and deletion)
+#? #RETURN: $TRUE if the immutable attribute was successfully removed, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Unset:Immutable() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if chattr -i "${file_path}" 2> >(Log:Error); then
+        Output:Success "Immutable attribute removed from ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $TRUE
+    else
+        Output:Error "Failed to remove immutable attribute from ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the SELinux context of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:SELinuxContext <file_path> <file_selinux_context_variable>
+#? #INFO: <file_selinux_context> is a variable that will be set to the SELinux context of the file
+#? #RETURN: $TRUE if the SELinux context was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:SELinuxContext() {
+    local file_path="$1"
+    local file_selinux_context_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_selinux_context=$(ls -Z "${file_path}" 2> >(Log:Error) | awk '{print $1}')
+    if [ -n "${file_selinux_context}" ]; then
+        if [ -n "${file_selinux_context_variable}" ]; then
+            eval "${file_selinux_context_variable}=${file_selinux_context}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "SELinux context of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_selinux_context}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve SELinux context for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the SELinux context of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:SELinuxContext <file_path> <file_selinux_context>
+#? #INFO: Sets the SELinux context of the file to the specified context
+#? #RETURN: $TRUE if the SELinux context was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:SELinuxContext() {
+    local file_path="$1"
+    local file_selinux_context="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_selinux_context}" ]]; then
+        Output:Error "SELinux context is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if chcon "${file_selinux_context}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "SELinux context of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_selinux_context}."
+        return $TRUE
+    else
+        Output:Error "Failed to set SELinux context for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system security label of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:SecurityLabel <file_path> <file_security_label_variable>
+#? #INFO: <file_security_label> is a variable that will be set to the file system security label of the file
+#? #RETURN: $TRUE if the file system security label was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:SecurityLabel() {
+    local file_path="$1"
+    local file_security_label_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_security_label=$(getfattr -n security.selinux "${file_path}" 2> >(Log:Error) | awk -F= '{print $2}')
+    if [ -n "${file_security_label}" ]; then
+        if [ -n "${file_security_label_variable}" ]; then
+            eval "${file_security_label_variable}=${file_security_label}" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system security label of ${COLOR_YELLOW}${file_path}${COLOR_RESET} is ${file_security_label}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system security label for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system security label of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:SecurityLabel <file_path> <file_security_label>
+#? #INFO: Sets the file system security label of the file to the specified label
+#? #RETURN: $TRUE if the file system security label was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:SecurityLabel() {
+    local file_path="$1"
+    local file_security_label="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_security_label}" ]]; then
+        Output:Error "File system security label is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if setfattr -n security.selinux -v "${file_security_label}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system security label of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_security_label}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system security label for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system access control list (ACL) of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:ACL <file_path> <file_acl_variable>
+#? #INFO: <file_acl> is a variable that will be set to the file system access control list of the file
+#? #RETURN: $TRUE if the file system access control list was successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:ACL() {
+    local file_path="$1"
+    local file_acl_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_acl=$(getfacl "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_acl}" ]; then
+        if [ -n "${file_acl_variable}" ]; then
+            eval "${file_acl_variable}='${file_acl}'" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system ACL of ${COLOR_YELLOW}${file_path}${COLOR_RESET} retrieved."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system ACL for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system access control list (ACL) of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:ACL <file_path> <file_acl>
+#? #INFO: Sets the file system access control list of the file to the specified ACL
+#? #RETURN: $TRUE if the file system access control list was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:ACL() {
+    local file_path="$1"
+    local file_acl="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_acl}" ]]; then
+        Output:Error "File system ACL is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if setfacl -m "${file_acl}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system ACL of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_acl}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system ACL for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system extended attributes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:ExtendedAttributes <file_path> <file_extended_attributes_variable>
+#? #INFO: <file_extended_attributes> is a variable that will be set to the file system extended attributes of the file
+#? #RETURN: $TRUE if the file system extended attributes were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:ExtendedAttributes() {
+    local file_path="$1"
+    local file_extended_attributes_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_extended_attributes=$(getfattr -d "${file_path}" 2> >(Log:Error))
+    if [ -n "${file_extended_attributes}" ]; then
+        if [ -n "${file_extended_attributes_variable}" ]; then
+            eval "${file_extended_attributes_variable}='${file_extended_attributes}'" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system extended attributes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} retrieved."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system extended attributes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system extended attributes of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:ExtendedAttributes <file_path> <file_extended_attributes>
+#? #INFO: Sets the file system extended attributes of the file to the specified attributes
+#? #RETURN: $TRUE if the file system extended attributes were successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:ExtendedAttributes() {
+    local file_path="$1"
+    local file_extended_attributes="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_extended_attributes}" ]]; then
+        Output:Error "File system extended attributes are required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if setfattr -n user.custom_attribute -v "${file_extended_attributes}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system extended attributes of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_extended_attributes}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system extended attributes for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system access time of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:AccessTime <file_path> <access_time>
+#? #INFO: Sets the file system access time of the file to the specified time
+#? #RETURN: $TRUE if the file system access time was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:AccessTime() {
+    local file_path="$1"
+    local file_access_time="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_access_time}" ]]; then
+        Output:Error "Access time is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if touch -a -t "${file_access_time}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system access time of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_access_time}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system access time for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system modification time of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:ModificationTime <file_path> <modification_time>
+#? #INFO: Sets the file system modification time of the file to the specified time
+#? #RETURN: $TRUE if the file system modification time was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:ModificationTime() {
+    local file_path="$1"
+    local file_modification_time="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_modification_time}" ]]; then
+        Output:Error "Modification time is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if touch -m -t "${file_modification_time}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system modification time of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_modification_time}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system modification time for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system change time of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:ChangeTime <file_path> <change_time>
+#? #INFO: Sets the file system change time of the file to the specified time
+#? #RETURN: $TRUE if the file system change time was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:ChangeTime() {
+    local file_path="$1"
+    local file_change_time="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_change_time}" ]]; then
+        Output:Error "Change time is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if touch -c -t "${file_change_time}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system change time of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_change_time}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system change time for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the owner of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:Owner <file_path> <owner_user> [<owner_group>]
+#? #INFO: Sets the owner of the file to the specified user and optionally group
+#? #RETURN: $TRUE if the owner was successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:Owner() {
+    local file_path="$1"
+    local file_owner_user="$2"
+    local file_owner_group="$3"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${owner_user}" ]]; then
+        Output:Error "Owner user is required."
+        return $FALSE
+    fi
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if [[ -n "${file_owner_group}" ]]; then
+        if chown "${file_owner_user}:${file_owner_group}" "${file_path}" 2> >(Log:Error); then
+            Output:Success "Owner of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_owner_user}:${file_owner_group}."
+            return $TRUE
+        else
+            Output:Error "Failed to set owner for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+            return $FALSE
+        fi
+    else
+        if chown "${file_owner_user}" "${file_path}" 2> >(Log:Error); then
+            Output:Success "Owner of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_owner_user}."
+            return $TRUE
+        else
+            Output:Error "Failed to set owner for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+            return $FALSE
+        fi
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the permissions of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:Permissions <file_path> <permissions>
+#? #INFO: Sets the permissions of the file to the specified mode (e.g., 755)
+#? #RETURN: $TRUE if the permissions were successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:Permissions() {
+    local file_path="$1"
+    local file_permissions="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_permissions}" ]]; then
+        Output:Error "Permissions are required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if chmod "${file_permissions}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "Permissions of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_permissions}."
+        return $TRUE
+    else
+        Output:Error "Failed to set permissions for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the file system flags of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Set:Flags <file_path> <flags>
+#? #INFO: Sets the file system flags of the file to the specified flags (e.g., 'nodump', 'append')
+#? #RETURN: $TRUE if the file system flags were successfully set, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Set:Flags() {
+    local file_path="$1"
+    local file_flags="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ -z "${file_flags}" ]]; then
+        Output:Error "Flags are required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if chattr "${file_flags}" "${file_path}" 2> >(Log:Error); then
+        Output:Success "File system flags of ${COLOR_YELLOW}${file_path}${COLOR_RESET} set to ${file_flags}."
+        return $TRUE
+    else
+        Output:Error "Failed to set file system flags for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system flags of a file
+#? ---------------------------------------------------------------
+#? #USAGE: File:Get:Flags <file_path> <file_flags_variable>
+#? #INFO: <file_flags> is a variable that will be set to the file system flags of the file
+#? #RETURN: $TRUE if the file system flags were successfully retrieved, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:Get:Flags() {
+    local file_path="$1"
+    local file_flags_variable="$2"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    local file_flags=$(lsattr "${file_path}" 2> >(Log:Error) | awk '{print $1}')
+    if [ -n "${file_flags}" ]; then
+        if [ -n "${file_flags_variable}" ]; then
+            eval "${file_flags_variable}='${file_flags}'" > >(Log:Output) 2> >(Log:Error)
+        fi
+        Output:Success "File system flags of ${COLOR_YELLOW}${file_path}${COLOR_RESET} are ${file_flags}."
+        return $TRUE
+    else
+        Output:Error "Failed to retrieve file system flags for ${COLOR_YELLOW}${file_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a file is a symbolic link
+#? ---------------------------------------------------------------
+#? #USAGE: File:SymbolicLink <file_path>
+#? #INFO: Checks if the file is a symbolic link
+#? #RETURN: $TRUE if the file is a symbolic link, $FALSE otherwise
+#* ---------------------------------------------------------------
+File:SymbolicLink() {
+    local file_path="$1"
+
+    if [[ -z "${file_path}" ]]; then
+        Output:Error "File path is required."
+        return $FALSE
+    fi
+
+    if [[ ! -e "${file_path}" ]]; then
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+
+    if [[ -L "${file_path}" ]]; then
+        Output:Success "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is a symbolic link."
+        return $TRUE
+    else
+        Output:Error "File ${COLOR_YELLOW}${file_path}${COLOR_RESET} is not a symbolic link."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
