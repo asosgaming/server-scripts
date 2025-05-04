@@ -1,7 +1,7 @@
 # server-scripts
 Scripts for server management
 
-## Firewall Functions
+## ${\color{#e11dbd}Firewall\ Functions}$
 This section contains functions to manage the firewall on a server. The functions allow you to check the status of the firewall, manage firewall zones, and handle ports, protocols, and services associated with those zones.
 
 |Name|Description|Arguments|
@@ -35,7 +35,7 @@ This section contains functions to manage the firewall on a server. The function
 |${\color{#e11dbd}Firewall}{\color{#ffffff}:}{\color{#e11dbd}Running}$|Check if the firewall is running.|
 |${\color{#e11dbd}Firewall}{\color{#ffffff}:}{\color{#e11dbd}Service}$|Check if a specific service is active in the firewall.|${\color{#ffffff}<}{\color{#9f790f}service\_name}{\color{#ffffff}>}$
 
-## Output Functions
+## ${\color{#008aac}Output\ Functions}$
 This section contains functions to manage the output of scripts. The functions allow you to format and display messages in different styles, such as success, error, warning, info, debug, log, header, title, and summary.
 
 |Name|Description|Arguments|
@@ -50,7 +50,7 @@ This section contains functions to manage the output of scripts. The functions a
 |${\color{#008aac}Output}{\color{#ffffff}:}{\color{#008aac}Title}$|Format and display a title message.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 |${\color{#008aac}Output}{\color{#ffffff}:}{\color{#008aac}Summary}$|Format and display a summary message.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 
-## Log Functions
+## ${\color{#c0b300}Log\ Functions}$
 This section contains functions to manage logging in scripts. The functions allow you to log stdout, stderr, and other messages.
 
 |Name|Description|Arguments|
@@ -59,7 +59,7 @@ This section contains functions to manage logging in scripts. The functions allo
 |${\color{#c0b300}Output}{\color{#ffffff}:}{\color{#c0b300}Output}$|Log standard output messages.|> >(Log:Output)
 |${\color{#c0b300}Output}{\color{#ffffff}:}{\color{#c0b300}Info}$|Log informational messages.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 
-## Ubuntu Functions
+## ${\color{#ff7f00}Ubuntu\ Functions}$
 This section contains functions specific to Ubuntu systems. The functions allow you to manage the system, including checking the system's architecture, updating the system, and managing services.
 
 |Name|Description|Arguments|
@@ -107,7 +107,7 @@ This section contains functions specific to Ubuntu systems. The functions allow 
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Service}{\color{#ffffff}:}{\color{#ff7f00}Unmask}$|Unmask a service to allow it to be started again.|${\color{#ffffff}<}{\color{#9f790f}service\_name}{\color{#ffffff}>}$
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Services}{\color{#ffffff}:}{\color{#ff7f00}Reload}$|Reload the systemd manager configuration on Ubuntu.|
 
-## File Functions
+## ${\color{#1d68e1}File\ Functions}$
 This section contains functions specific to file management. The functions allow you to set permissions, flags, and retrieve file system information.
 
 |Name|Description|Arguments|
