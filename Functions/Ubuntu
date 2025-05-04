@@ -1,0 +1,714 @@
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if the operating system is Ubuntu Noble
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Noble
+#? #RETURN: $TRUE if the operating system is Ubuntu Noble, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Noble() {
+    # Check if the operating system is Ubuntu and the version is 24.04 or higher
+    if [[ "$(lsb_release -is)" == "Ubuntu" ]] && [[ "$(lsb_release -cs)" == "noble" || "$(lsb_release -rs)" > "24.04" ]]; then
+        Output:Success "Operating system is Ubuntu Noble."
+        return $TRUE
+    else
+        Output:Error "Operating system is not Ubuntu Noble."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if the operating system is Ubuntu Jammy
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Jammy
+#? #RETURN: $TRUE if the operating system is Ubuntu Jammy, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Jammy() {
+    # Check if the operating system is Ubuntu and the version is 22.04 or higher
+    if [[ "$(lsb_release -is)" == "Ubuntu" ]] && [[ "$(lsb_release -cs)" == "jammy" || "$(lsb_release -rs)" > "22.04" ]]; then
+        Output:Success "Operating system is Ubuntu Jammy."
+        return $TRUE
+    else
+        Output:Error "Operating system is not Ubuntu Jammy."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if package is installed on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Installed <package_name>
+#? #RETURN: $TRUE if the package is installed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Installed() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^ii\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is installed."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not installed."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Install a package using apt on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Install <package_name>
+#? #RETURN: $TRUE if the package was successfully installed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Install() {
+    local package_name="$1"
+    if ! Ubuntu:Apt:Installed "${package_name}"; then
+        if apt install -y "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+            Output:Success "Package '${package_name}' installed successfully."
+            return $TRUE
+        else
+            Output:Error "Failed to install package '${package_name}'."
+            return $FALSE
+        fi
+    else
+        Output:Info "Package '${package_name}' is already installed."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Remove a package using apt on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Remove <package_name>
+#? #RETURN: $TRUE if the package was successfully removed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Remove() {
+    local package_name="$1"
+    if Ubuntu:Apt:Installed "${package_name}"; then
+        if apt remove -y "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+            Output:Success "Package '${package_name}' removed successfully."
+            return $TRUE
+        else
+            Output:Error "Failed to remove package '${package_name}'."
+            return $FALSE
+        fi
+    else
+        Output:Info "Package '${package_name}' is not installed, so not removing."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Update the package list on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Update
+#? #RETURN: $TRUE if the package list was successfully updated, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Update() {
+    if apt update > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package list updated successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to update package list."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Upgrade installed packages on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Upgrade
+#? #RETURN: $TRUE if the packages were successfully upgraded, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Upgrade() {
+    if apt upgrade -y > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Packages upgraded successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to upgrade packages."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Clean up unused packages on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Clean
+#? #RETURN: $TRUE if the cleanup was successful, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Clean() {
+    if apt autoremove -y > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Unused packages cleaned up successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to clean up unused packages."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a service is running on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Running <service_name>
+#? #RETURN: $TRUE if the service is running, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Running() {
+    local service_name="$1"
+    if systemctl is-active --quiet "${service_name}"; then
+        Output:Success "Service '${service_name}' is running."
+        return $TRUE
+    else
+        Output:Error "Service '${service_name}' is not running."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Start a service on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Start <service_name>
+#? #RETURN: $TRUE if the service was successfully started, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Start() {
+    local service_name="$1"
+    if ! Ubuntu:Service:Running "${service_name}"; then
+        if systemctl start "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+            Output:Success "Service '${service_name}' started successfully."
+            return $TRUE
+        else
+            Output:Error "Failed to start service '${service_name}'."
+            return $FALSE
+        fi
+    else
+        Output:Info "Service '${service_name}' is already running."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Stop a service on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Stop <service_name>
+#? #RETURN: $TRUE if the service was successfully stopped, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Stop() {
+    local service_name="$1"
+    if Ubuntu:Service:Running "${service_name}"; then
+        if systemctl stop "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+            Output:Success "Service '${service_name}' stopped successfully."
+            return $TRUE
+        else
+            Output:Error "Failed to stop service '${service_name}'"
+            return $FALSE
+        fi
+    else
+        Output:Info "Service '${service_name}' is not running, so not stopping."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Restart a service on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Restart <service_name>
+#? #RETURN: $TRUE if the service was successfully restarted, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Restart() {
+    local service_name="$1"
+    if systemctl restart "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Service '${service_name}' restarted successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to restart service '${service_name}'"
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Enable a service to start on boot on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Enable <service_name>
+#? #RETURN: $TRUE if the service was successfully enabled, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Enable() {
+    local service_name="$1"
+    if systemctl enable "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Service '${service_name}' enabled to start on boot."
+        return $TRUE
+    else
+        Output:Error "Failed to enable service '${service_name}' to start on boot."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Disable a service from starting on boot on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Disable <service_name>
+#? #RETURN: $TRUE if the service was successfully disabled, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Disable() {
+    local service_name="$1"
+    if systemctl disable "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Service '${service_name}' disabled from starting on boot."
+        return $TRUE
+    else
+        Output:Error "Failed to disable service '${service_name}' from starting on boot."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a service is enabled on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Enabled <service_name>
+#? #RETURN: $TRUE if the service is enabled, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Enabled() {
+    local service_name="$1"
+    if systemctl is-enabled --quiet "${service_name}"; then
+        Output:Success "Service '${service_name}' is enabled."
+        return $TRUE
+    else
+        Output:Error "Service '${service_name}' is not enabled."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a service is disabled on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Disabled <service_name>
+#? #RETURN: $TRUE if the service is disabled, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Disabled() {
+    local service_name="$1"
+    if systemctl is-enabled --quiet "${service_name}"; then
+        Output:Error "Service '${service_name}' is not disabled."
+        return $FALSE
+    else
+        Output:Success "Service '${service_name}' is disabled."
+        return $TRUE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a service is masked on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Masked <service_name>
+#? #RETURN: $TRUE if the service is masked, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Masked() {
+    local service_name="$1"
+    if systemctl is-masked --quiet "${service_name}"; then
+        Output:Success "Service '${service_name}' is masked."
+        return $TRUE
+    else
+        Output:Error "Service '${service_name}' is not masked."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Mask a service on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Mask <service_name>
+#? #RETURN: $TRUE if the service was successfully masked, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Mask() {
+    local service_name="$1"
+    if systemctl mask "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Service '${service_name}' masked successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to mask service '${service_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Unmask a service on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Unmask <service_name>
+#? #RETURN: $TRUE if the service was successfully unmasked, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Unmask() {
+    local service_name="$1"
+    if systemctl unmask "${service_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Service '${service_name}' unmasked successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to unmask service '${service_name}'."
+        return $FALSE
+    fi
+}
+
+# -----------------------------------------------------------------------------------------------
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is available in the apt repository on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Available <package_name>
+#? #RETURN: $TRUE if the package is available, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Available() {
+    local package_name="$1"
+    if apt-cache show "${package_name}" > /dev/null 2>&1; then
+        Output:Success "Package '${package_name}' is available in the apt repository."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not available in the apt repository."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is upgradable on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Upgradable <package_name>
+#? #RETURN: $TRUE if the package is upgradable, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Upgradable() {
+    local package_name="$1"
+    if apt list --upgradable 2>/dev/null | grep -q "${package_name}"; then
+        Output:Success "Package '${package_name}' is upgradable."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not upgradable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is held back on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Held <package_name>
+#? #RETURN: $TRUE if the package is held back, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Held() {
+    local package_name="$1"
+    if apt-mark showhold | grep -q "${package_name}"; then
+        Output:Success "Package '${package_name}' is held back."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not held back."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is purged on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Purged <package_name>
+#? #RETURN: $TRUE if the package is purged, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Purged() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^rc\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is purged."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not purged."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is configured on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Configured <package_name>
+#? #RETURN: $TRUE if the package is configured, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Configured() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^ii\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is configured."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not configured."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is broken on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Broken <package_name>
+#? #RETURN: $TRUE if the package is broken, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Broken() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..U\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is broken."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not broken."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is auto-installed on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Auto <package_name>
+#? #RETURN: $TRUE if the package is auto-installed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Auto() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..A\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is auto-installed."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not auto-installed."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is manually installed on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Manual <package_name>
+#? #RETURN: $TRUE if the package is manually installed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Manual() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^ii\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is manually installed."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not manually installed."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being installed on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Installing <package_name>
+#? #RETURN: $TRUE if the package is in the process of being installed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Installing() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..I\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being installed."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being installed."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being removed on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Removing <package_name>
+#? #RETURN: $TRUE if the package is in the process of being removed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Removing() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..R\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being removed."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being removed."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being purged on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Purging <package_name>
+#? #RETURN: $TRUE if the package is in the process of being purged, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Purging() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..P\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being purged."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being purged."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being configured on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Configuring <package_name>
+#? #RETURN: $TRUE if the package is in the process of being configured, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Configuring() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..C\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being configured."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being configured."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being upgraded on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Upgrading <package_name>
+#? #RETURN: $TRUE if the package is in the process of being upgraded, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Upgrading() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..U\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being upgraded."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being upgraded."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a package is in the process of being held back on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Holding <package_name>
+#? #RETURN: $TRUE if the package is in the process of being held back, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Holding() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^..H\s*${package_name}"; then
+        Output:Success "Package '${package_name}' is in the process of being held back."
+        return $TRUE
+    else
+        Output:Error "Package '${package_name}' is not in the process of being held back."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Hold a package on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Hold <package_name>
+#? #RETURN: $TRUE if the package was successfully held, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Hold() {
+    local package_name="$1"
+    if apt-mark hold "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package '${package_name}' held successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to hold package '${package_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Unhold a package on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Unhold <package_name>
+#? #RETURN: $TRUE if the package was successfully unheld, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Unhold() {
+    local package_name="$1"
+    if apt-mark unhold "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package '${package_name}' unheld successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to unhold package '${package_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Purge a package on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Purge <package_name>
+#? #RETURN: $TRUE if the package was successfully purged, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Purge() {
+    local package_name="$1"
+    if dpkg -l | grep -q "^rc\s*${package_name}"; then
+        Output:Info "Package '${package_name}' is already purged."
+        return $TRUE
+    fi
+
+    if apt purge -y "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package '${package_name}' purged successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to purge package '${package_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Configure a package on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Configure <package_name>
+#? #RETURN: $TRUE if the package was successfully configured, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Configure() {
+    local package_name="$1"
+    if dpkg --configure "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package '${package_name}' configured successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to configure package '${package_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Upgrade a package on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Apt:Upgrade:Package <package_name>
+#? #RETURN: $TRUE if the package was successfully upgraded, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Apt:Upgrade:Package() {
+    local package_name="$1"
+    if apt upgrade -y "${package_name}" > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Package '${package_name}' upgraded successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to upgrade package '${package_name}'."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a command is available on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Command:Available <command_name>
+#? #RETURN: $TRUE if the command is available, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Command:Available() {
+    local command_name="$1"
+    if command -v "${command_name}" > /dev/null 2>&1; then
+        Output:Success "Command '${command_name}' is available."
+        return $TRUE
+    else
+        Output:Error "Command '${command_name}' is not available."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Run a command on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Command <command_name> [args...]
+#? #RETURN: $TRUE if the command was successfully executed, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Command() {
+    local command_name="$1"
+    shift  # Remove the command name from the arguments
+    if command -v "${command_name}" > /dev/null 2>&1; then
+        if "${command_name}" "$@" > >(Log:Output) 2> >(Log:Error); then
+            Output:Success "Command '${command_name}' executed successfully."
+            return $TRUE
+        else
+            Output:Error "Failed to execute command '${command_name}'."
+            return $FALSE
+        fi
+    else
+        Output:Error "Command '${command_name}' is not available."
+        return $FALSE
+    fi
+}
+
+
+
+
