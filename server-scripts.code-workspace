@@ -34,6 +34,80 @@
 					{ "color": "#ffffff" }
 				]
 			},
+			"(Ubuntu)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
+				"decorations": [
+					{ "color": "#e1781d" },
+					{ "color": "#ffffff" },
+					{ "color": "#e1781d" },
+					{ "color": "#ffffff" },
+					{ "color": "#e1781d" },
+					{ "color": "#ffffff" },
+					{ "color": "#e1781d" },
+					{ "color": "#ffffff" },
+					{ "color": "#e1781d" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(^[ ]*#)(\\?)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#f2b307" },
+					{}
+				]
+			},
+			"(^[ ]*#)(\\*)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#f27507" },
+					{}
+				]
+			},
+			"(^[ ]*#)(=)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#0788f2" },
+					{}
+				]
+			},
+			"(^[ ]*#)(\\-)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#635959" },
+					{}
+				]
+			},
+			"(^[ ]*#)(\\+)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#0ab218" },
+					{}
+				]
+			},
+			"(^[ ]*#)(\\!)( )([\\-]{1,69})?(.*$)": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#635959" },
+					{ "color": "#635959" },
+					{},
+					{ "color": "#e73636" },
+					{}
+				]
+			},
 
 			"(#)(USAGE)(:)( )": {
 				"filterFileRegex": ".*$",
@@ -204,7 +278,7 @@
 					{}
 				]
 			},
-			"( |\\()(firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl)( )": {
+			"( |\\()(apt|firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl)( )": {
 				"regexFlags": "gm",
 				"decorations": [
 					{},
@@ -221,7 +295,7 @@
 					{ "color": "#ffffff" }
 				]
 			},
-			"(\\<|\\$| )(\\{)?([!#])?(log_file|log_line|zone_name|interface_name|interfaces|interface|source|target|variable_name|ports|port|protocols|protocol|service_name|services|zones|active_zones)(:\\-|%|#)?(\\}|\\>|=)?": {
+			"(\\<|\\$| )(\\{)?([!#])?(env_var|service_description|service_exec_start|service_user|service_group|service_ports|service_port|service_environment|service_file|command_name|package_name|log_file|log_line|zone_name|interface_name|interfaces|interface|source|target|variable_name|ports|port|protocols|protocol|service_name|services|zones|active_zones)(:\\-|%|#)?(\\}|\\>|=)?": {
 				"regexFlags": "gm",
 				"decorations": [
 					{ "color": "#ffffff" },
@@ -257,15 +331,6 @@
 					{ "color": "#996921" },
 					{ "color": "#f99f05" },
 					{ "color": "#996921" }
-				]
-			},
-			"(#)( )([\\-]{1,69})($)": {
-				"regexFlags": "gm",
-				"decorations": [
-					{ "color": "#ffffff" },
-					{},
-					{ "color": "#f2b307" },
-					{}
 				]
 			},
 
