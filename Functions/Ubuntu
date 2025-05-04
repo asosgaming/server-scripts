@@ -709,6 +709,71 @@ Ubuntu:Command() {
     fi
 }
 
+#* ---------------------------------------------------------------
+#? #DESC: Reload the systemd manager configuration on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Services:Reload
+#? #RETURN: $TRUE if the systemd manager configuration was successfully reloaded, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Services:Reload() {
+    if systemctl daemon-reload > >(Log:Output) 2> >(Log:Error); then
+        Output:Success "Systemd manager configuration reloaded successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to reload systemd manager configuration."
+        return $FALSE
+    fi
+}
 
+#* ---------------------------------------------------------------
+#? #DESC: Create a systemd service file on Ubuntu
+#? ---------------------------------------------------------------
+#? #USAGE: Ubuntu:Service:Create <service_name> <service_description> <service_exec_start> <service_user> <service_group> <service_ports> <service_environment>
+#? #RETURN: $TRUE if the service file was successfully created, $FALSE otherwise
+#* ---------------------------------------------------------------
+Ubuntu:Service:Create() {
+    local service_name="$1"
+    local service_description="$2"
+    local service_exec_start="$3"
+    local service_user="${4:-root}"
+    local service_group="${5:-root}"
+    local service_ports="$6"
+    local service_environment="$7"
+
+    # Create the systemd service file
+    local service_file="/etc/systemd/system/${service_name}.service"
+    {
+        echo "[Unit]"
+        echo "Description=${service_description}"
+        echo ""
+        echo "[Service]"
+        echo "ExecStart=${service_exec_start}"
+        echo "User=${service_user}"
+        echo "Group=${service_group}"
+        if [[ -n "${service_ports}" ]]; then
+            echo "ListenStream="
+            for service_port in ${service_ports//,/ }; do
+                echo "ListenStream=${port}"
+            done
+        fi
+        if [[ -n "${service_environment}" ]]; then
+            for env_var in ${service_environment//,/ }; do
+                echo "Environment=${env_var}"
+            done
+        fi
+        echo ""
+        echo "[Install]"
+        echo "WantedBy=multi-user.target"
+    } > "${service_file}"
+
+    # Reload systemd to recognize the new service
+    if Ubuntu:Systemd:Reload; then
+        Output:Success "Service '${service_name}' created successfully."
+        return $TRUE
+    else
+        Output:Error "Failed to create service '${service_name}'."
+        return $FALSE
+    fi
+}
 
 
