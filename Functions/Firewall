@@ -112,22 +112,22 @@ Firewall:Zone:Create() {
 #* --------------------------------------------------------------
 #? #DESC: Check if source attached to firewall zone
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Source <zone_name> <source>
+#? #USAGE: Firewall:Zone:Source <zone_name> <zone_source>
 #? #RETURN: $TRUE if the subnet is attached, $FALSE otherwise
 #* --------------------------------------------------------------
 Firewall:Zone:Source() {
     local zone_name="$1"
-    local source="$2"
-    if [ -z "${zone_name}" ] || [ -z "${source}" ]; then
+    local zone_source="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_source}" ]; then
         Output:Error "Zone name or source not specified."
         return $FALSE
     fi
 
-    if firewall-cmd --zone=${zone_name} --list-all | grep '^  sources:' | grep -q "${source}"; then
-        Output:Success "Source ${COLOR_CYAN}${source}${COLOR_RESET} is attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+    if firewall-cmd --zone=${zone_name} --list-all | grep '^  sources:' | grep -q "${zone_source}"; then
+        Output:Success "Source ${COLOR_CYAN}${zone_source}${COLOR_RESET} is attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
         return $TRUE
     else
-        Output:Error "Source ${COLOR_CYAN}${source}${COLOR_RESET} is not attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+        Output:Error "Source ${COLOR_CYAN}${zone_source}${COLOR_RESET} is not attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
         return $FALSE
     fi
 }
@@ -135,24 +135,24 @@ Firewall:Zone:Source() {
 #* --------------------------------------------------------------
 #? #DESC: Add source to firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Source:Add <zone_name> <source>
+#? #USAGE: Firewall:Zone:Source:Add <zone_name> <zone_source>
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Source:Add() {
     local zone_name="$1"
-    local source="$2"
-    if [ -z "${zone_name}" ] || [ -z "${source}" ]; then
+    local zone_source="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_source}" ]; then
         Output:Error "Zone name or source not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="${zone_name}" --add-source="${source}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="${zone_name}" --add-source="${zone_source}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Source ${COLOR_CYAN}${source}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Source ${COLOR_CYAN}${zone_source}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to add source ${COLOR_CYAN}${source}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to add source ${COLOR_CYAN}${zone_source}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
@@ -164,24 +164,24 @@ Firewall:Zone:Source:Add() {
 #* --------------------------------------------------------------
 #? #DESC: Remove source from firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Source:Delete <zone_name> <source>
+#? #USAGE: Firewall:Zone:Source:Delete <zone_name> <zone_source>
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Source:Delete() {
     local zone_name="$1"
-    local source="$2"
-    if [ -z "${zone_name}" ] || [ -z "${source}" ]; then
+    local zone_source="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_source}" ]; then
         Output:Error "Zone name or source not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="${zone_name}" --remove-source="${source}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="${zone_name}" --remove-source="${zone_source}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Source ${COLOR_CYAN}${source}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Source ${COLOR_CYAN}${zone_source}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to remove source ${COLOR_CYAN}${source}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to remove source ${COLOR_CYAN}${zone_source}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
@@ -311,18 +311,18 @@ Firewall:Zone:Interface:Delete() {
 #* --------------------------------------------------------------
 Firewall:Zone:Target() {
     local zone_name="$1"
-    local target="$2"
-    if [ -z "${zone_name}" ] || [ -z "${target}" ]; then
+    local zone_target="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_target}" ]; then
         Output:Error "Zone name or target not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        case "${target}" in
+        case "${zone_target}" in
             default|ACCEPT|DROP|REJECT)
-                firewall-cmd --permanent --zone="${zone_name}" --set-target="${target}" > >(Log:Output) 2> >(Log:Error)
+                firewall-cmd --permanent --zone="${zone_name}" --set-target="${zone_target}" > >(Log:Output) 2> >(Log:Error)
                 if [ $? -eq 0 ]; then
-                    Output:Success "Target for firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} set to ${COLOR_CYAN}${target}${COLOR_RESET} successfully."
+                    Output:Success "Target for firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} set to ${COLOR_CYAN}${zone_target}${COLOR_RESET} successfully."
                     return $TRUE
                 else
                     Output:Error "Failed to set target for firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
@@ -330,8 +330,8 @@ Firewall:Zone:Target() {
                 fi
             ;;
             *)
-                eval "${target}=$(firewall-cmd --zone=${zone_name} --list-all | grep '^  target:' | cut -d ' ' -f 4-)"
-                if [ -z "${!target}" ]; then
+                eval "${zone_target}=$(firewall-cmd --zone=${zone_name} --list-all | grep '^  target:' | cut -d ' ' -f 4-)"
+                if [ -z "${!zone_target}" ]; then
                     Output:Error "Zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} does not have a target set or the variable name is incorrect."
                     return $FALSE
                 fi
@@ -348,25 +348,25 @@ Firewall:Zone:Target() {
 #* --------------------------------------------------------------
 #? #DESC: Add port to firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Port:Add <zone_name> "<port>/<protocol>"
+#? #USAGE: Firewall:Zone:Port:Add <zone_name> "<zone_port>/<zone_protocol>"
 #? #INFO: Protocol can be tcp or udp
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Port:Add() {
     local zone_name="$1"
-    local port="$2"
-    if [ -z "${zone_name}" ] || [ -z "${port}" ]; then
+    local zone_port="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_port}" ]; then
         Output:Error "Zone name or port not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="${zone_name}" --add-port="${port}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="${zone_name}" --add-port="${zone_port}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Port ${COLOR_CYAN}${port}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Port ${COLOR_CYAN}${zone_port}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to add port ${COLOR_CYAN}${port}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to add port ${COLOR_CYAN}${zone_port}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
@@ -378,25 +378,25 @@ Firewall:Zone:Port:Add() {
 #* --------------------------------------------------------------
 #? #DESC: Remove port from firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Port:Delete <zone_name> "<port>/<protocol>"
+#? #USAGE: Firewall:Zone:Port:Delete <zone_name> "<zone_port>/<zone_protocol>"
 #? #INFO: Protocol can be tcp or udp
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Port:Delete() {
     local zone_name="$1"
-    local port="$2"
-    if [ -z "${zone_name}" ] || [ -z "${port}" ]; then
+    local zone_port="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_port}" ]; then
         Output:Error "Zone name or port not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="${zone_name}" --remove-port="${port}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="${zone_name}" --remove-port="${zone_port}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Port ${COLOR_CYAN}${port}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Port ${COLOR_CYAN}${zone_port}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to remove port ${COLOR_CYAN}${port}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to remove port ${COLOR_CYAN}${zone_port}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
@@ -421,10 +421,10 @@ Firewall:Zone:Ports() {
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        local ports=$(firewall-cmd --zone="${zone_name}" --list-ports)
-        if [ -n "${ports}" ]; then
-            eval "${variable_name}=\"${ports}\""
-            Output:Success "Firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} has port(s) ${COLOR_CYAN}${ports}${COLOR_RESET}."
+        local zone_ports=$(firewall-cmd --zone="${zone_name}" --list-ports)
+        if [ -n "${zone_ports}" ]; then
+            eval "${variable_name}=\"${zone_ports}\""
+            Output:Success "Firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} has port(s) ${COLOR_CYAN}${zone_ports}${COLOR_RESET}."
             return $TRUE
         else
             Output:Warning "No ports attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
@@ -452,10 +452,10 @@ Firewall:Zone:Protocols() {
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        local protocols=$(firewall-cmd --zone="${zone_name}" --list-protocols)
-        if [ -n "${protocols}" ]; then
-            eval "${variable_name}=\"${protocols}\""
-            Output:Success "Firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} has protocol(s) ${COLOR_CYAN}${protocols}${COLOR_RESET}."
+        local zone_protocols=$(firewall-cmd --zone="${zone_name}" --list-protocols)
+        if [ -n "${zone_protocols}" ]; then
+            eval "${variable_name}=\"${zone_protocols}\""
+            Output:Success "Firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} has protocol(s) ${COLOR_CYAN}${zone_protocols}${COLOR_RESET}."
             return $TRUE
         else
             Output:Warning "No protocols attached to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
@@ -470,25 +470,25 @@ Firewall:Zone:Protocols() {
 #* --------------------------------------------------------------
 #? #DESC: Add protocol to firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Protocol:Add <zone_name> <protocol>
+#? #USAGE: Firewall:Zone:Protocol:Add <zone_name> <zone_protocol>
 #? #INFO: Protocol can be tcp or udp
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Protocol:Add() {
     local zone_name="$1"
-    local protocol="$2"
-    if [ -z "${zone_name}" ] || [ -z "${protocol}" ]; then
+    local zone_protocol="$2"
+    if [ -z "${zone_name}" ] || [ -z "${zone_protocol}" ]; then
         Output:Error "Zone name or protocol not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="${zone_name}" --add-protocol="${protocol}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="${zone_name}" --add-protocol="${zone_protocol}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Protocol ${COLOR_CYAN}${protocol}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Protocol ${COLOR_CYAN}${zone_protocol}${COLOR_RESET} added to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to add protocol ${COLOR_CYAN}${protocol}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to add protocol ${COLOR_CYAN}${zone_protocol}${COLOR_RESET} to firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
@@ -500,25 +500,25 @@ Firewall:Zone:Protocol:Add() {
 #* --------------------------------------------------------------
 #? #DESC: Remove protocol from firewall zone if it exists
 #? --------------------------------------------------------------
-#? #USAGE: Firewall:Zone:Protocol:Delete <zone_name> <protocol>
+#? #USAGE: Firewall:Zone:Protocol:Delete <zone_name> <zone_protocol>
 #? #INFO: Protocol can be tcp or udp
 #? #RETURN: $TRUE on success, $FALSE on failure
 #* --------------------------------------------------------------
 Firewall:Zone:Protocol:Delete() {
     local zone_name="$1"
-    local protocol="$2"
-    if [ -z "$zone_name" ] || [ -z "${protocol}" ]; then
+    local zone_protocol="$2"
+    if [ -z "$zone_name" ] || [ -z "${zone_protocol}" ]; then
         Output:Error "Zone name or protocol not specified."
         return $FALSE
     fi
 
     if firewall-cmd --get-zones | grep -qw "${zone_name}"; then
-        firewall-cmd --permanent --zone="$zone_name" --remove-protocol="${protocol}" > >(Log:Output) 2> >(Log:Error)
+        firewall-cmd --permanent --zone="$zone_name" --remove-protocol="${zone_protocol}" > >(Log:Output) 2> >(Log:Error)
         if [ $? -eq 0 ]; then
-            Output:Success "Protocol ${COLOR_CYAN}${protocol}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
+            Output:Success "Protocol ${COLOR_CYAN}${zone_protocol}${COLOR_RESET} removed from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET} successfully."
             return $TRUE
         else
-            Output:Error "Failed to remove protocol ${COLOR_CYAN}${protocol}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
+            Output:Error "Failed to remove protocol ${COLOR_CYAN}${zone_protocol}${COLOR_RESET} from firewall zone ${COLOR_CYAN}${zone_name}${COLOR_RESET}."
             return $FALSE
         fi
     else
