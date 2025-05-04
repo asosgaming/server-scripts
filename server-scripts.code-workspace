@@ -220,6 +220,15 @@
 					{ "color": "#ffffff" }
 				]
 			},
+			"(^|\\$)(\\{)?(EMPTY|SPACE|TAB|NEWLINE|RETURN|BACKSLASH)(\\}|=)?": {
+				"regexFlags": "gm",
+				"decorations": [
+					{ "color": "#ffffff" },
+					{ "color": "#ffffff" },
+					{ "color": "#a251a2" },
+					{ "color": "#ffffff" }
+				]
+			},
 			"(^|\\$)(\\{)?(TRUE|SUCCESS)(\\}|=)?": {
 				"regexFlags": "gm",
 				"decorations": [
