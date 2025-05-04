@@ -48,6 +48,20 @@
 					{ "color": "#ffffff" }
 				]
 			},
+			"(File)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
+				"decorations": [
+					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" },
+					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" },
+					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" },
+					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" },
+					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" }
+				]
+			},
 			"(^[ ]*#)(\\?)( )([\\-]{1,69})?(.*$)": {
 				"regexFlags": "gm",
 				"decorations": [
@@ -278,7 +292,7 @@
 					{}
 				]
 			},
-			"( |\\()(apt|firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl)( )": {
+			"( |\\()(chcon|getfacl|setfacl|getfattr|setfattr|apt|firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl|lsattr|chattr)( )": {
 				"regexFlags": "gm",
 				"decorations": [
 					{},
@@ -295,13 +309,17 @@
 					{ "color": "#ffffff" }
 				]
 			},
-			"(\\<|\\$| )(\\{)?([!#])?(env_var|service_description|service_exec_start|service_user|service_group|service_ports|service_port|service_environment|service_file|command_name|package_name|log_file|log_line|zone_name|interface_name|interfaces|interface|source|target|variable_name|ports|port|protocols|protocol|service_name|services|zones|active_zones)(:\\-|%|#)?(\\}|\\>|=)?": {
+			"(\\<|\\$| )(\\{)?([!#])?(active|file|env|service|command|package|log|zone|interface|variable)(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(:\\-|%|#)?(\\}|\\>|=)?": {
 				"regexFlags": "gm",
 				"decorations": [
 					{ "color": "#ffffff" },
 					{ "color": "#ffffff" },
 					{ "color": "#f2b307" },
 					{ "color": "#9f790f" },
+					{ "color": "#5d5747" }, { "color": "#9f790f" },
+					{ "color": "#5d5747" }, { "color": "#9f790f" },
+					{ "color": "#5d5747" }, { "color": "#9f790f" },
+					{ "color": "#5d5747" }, { "color": "#9f790f" },
 					{ "color": "#f2b307" },
 					{ "color": "#ffffff" }
 				]
