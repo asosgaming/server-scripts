@@ -1,4 +1,75 @@
-## ${\color{#e11dbd}Firewall\ Functions}$
+# Functions Documentation
+
+## Color Constants
+This section contains color constants used for formatting output messages in scripts. These constants define various colors that can be used to enhance the readability of messages displayed in the terminal.
+
+|Name|Description|
+| --- | --- |
+|${\color{#3c5466}COLOR\_BLACK}$|Black color constant.|
+|${\color{#3c5466}COLOR\_BLUE}$|Blue color constant.|
+|${\color{#3c5466}COLOR\_CYAN}$|Cyan color constant.|
+|${\color{#3c5466}COLOR\_GREEN}$|Green color constant.|
+|${\color{#3c5466}COLOR\_MAGENTA}$|Magenta color constant.|
+|${\color{#3c5466}COLOR\_RED}$|Red color constant.|
+|${\color{#3c5466}COLOR\_RESET}$|Reset color constant.|
+|${\color{#3c5466}COLOR\_WHITE}$|White color constant.|
+|${\color{#3c5466}COLOR\_YELLOW}$|Yellow color constant.|
+
+## Bold Constants
+This section contains bold color constants used for formatting output messages in scripts. These constants define various bold colors that can be used to enhance the visibility of important messages displayed in the terminal.
+
+|Name|Description|
+| --- | --- |
+|${\color{#3c5466}BOLD\_BLUE}$|Bold blue color constant.|
+|${\color{#3c5466}BOLD\_CYAN}$|Bold cyan color constant.|
+|${\color{#3c5466}BOLD\_GRAY}$|Bold gray color constant.|
+|${\color{#3c5466}BOLD\_GREEN}$|Bold green color constant.|
+|${\color{#3c5466}BOLD\_MAGENTA}$|Bold magenta color constant.|
+|${\color{#3c5466}BOLD\_RED}$|Bold red color constant.|
+|${\color{#3c5466}BOLD\_RESET}$|Reset bold color constant.|
+|${\color{#3c5466}BOLD\_WHITE}$|Bold white color constant.|
+|${\color{#3c5466}BOLD\_YELLOW}$|Bold yellow color constant.|
+
+## Message Constants
+This section contains message constants used throughout the scripts. These constants define various styles for output messages, such as success, error, warning, info, debug, log, header, title, and summary.
+
+|Name|Description|
+| --- | --- |
+|${\color{#5ddd1d}DEBUG}$|Debug message constant.|
+|${\color{#b20a0a}ERROR}$|Error message constant.|
+|${\color{#3183da}INFO}$|Informational message constant.|
+|${\color{#0ab218}SUCCESS}$|Success message constant.|
+|${\color{#b2ac0a}WARNING}$|Warning message constant.|
+
+## Condition Constants
+This section contains condition constants used to check the status of various operations in scripts. These constants define conditions such as whether a file exists, if a service is running, or if a command is available.
+
+|Name|Description|
+| --- | --- |
+|${\color{#b20a0a}FALSE}$|Boolean false constant.|
+|${\color{#0ab218}TRUE}$|Boolean true constant.|
+
+## Constants
+This section contains constants used throughout the scripts. These constants define various colors and styles for output messages, as well as other configuration settings.
+
+|Name|Description|
+| --- | --- |
+|${\color{#a251a2}BACKSLASH}$|Backslash character constant.|
+|${\color{#a251a2}EMPTY}$|Empty string constant.|
+|${\color{#a251a2}NEWLINE}$|Newline character constant.|
+|${\color{#a251a2}RETURN}$|Carriage return character constant.|
+|${\color{#a251a2}SPACE}$|Space character constant.|
+|${\color{#a251a2}TAB}$|Tab character constant.|
+
+## User Defined Variables
+This section contains user-defined variables that can be used to store and manage data within scripts. These variables can be customized based on the specific requirements of the script.
+
+|Name|Description|
+| --- | --- |
+|${\color{#c0b300}LOG\_ERROR}$|Path to the error log file.|
+|${\color{#c0b300}LOG\_FILE}$|Path to the main log file.|
+
+## Firewall Functions
 This section contains functions to manage the firewall on a server. The functions allow you to check the status of the firewall, manage firewall zones, and handle ports, protocols, and services associated with those zones.
 
 |Name|Description|Arguments|
@@ -32,7 +103,7 @@ This section contains functions to manage the firewall on a server. The function
 |${\color{#e11dbd}Firewall}{\color{#ffffff}:}{\color{#e11dbd}Zones}{\color{#ffffff}:}{\color{#e11dbd}Active}$|Get all active firewall zones.|
 |${\color{#e11dbd}Firewall}{\color{#ffffff}:}{\color{#e11dbd}Zones}$|Get all firewall zones.|
 
-## ${\color{#008aac}Output\ Functions}$
+## Output Functions
 This section contains functions to manage the output of scripts. The functions allow you to format and display messages in different styles, such as success, error, warning, info, debug, log, header, title, and summary.
 
 |Name|Description|Arguments|
@@ -47,7 +118,7 @@ This section contains functions to manage the output of scripts. The functions a
 |${\color{#008aac}Output}{\color{#ffffff}:}{\color{#b2ac0a}Warning}$|Format and display a warning message.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 |${\color{#008aac}Output}{\color{#ffffff}:}{\color{#e114c2}Log}$|Format and display a log message.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 
-## ${\color{#c0b300}Log\ Functions}$
+## Log Functions
 This section contains functions to manage logging in scripts. The functions allow you to log stdout, stderr, and other messages.
 
 |Name|Description|Arguments|
@@ -56,7 +127,7 @@ This section contains functions to manage logging in scripts. The functions allo
 |${\color{#c0b300}Output}{\color{#ffffff}:}{\color{#c0b300}Info}$|Log informational messages.|${\color{#ffffff}<}{\color{#9f790f}message}{\color{#ffffff}>}$
 |${\color{#c0b300}Output}{\color{#ffffff}:}{\color{#c0b300}Output}$|Log standard output messages.|> >(Log:Output)
 
-## ${\color{#ff7f00}Ubuntu\ Functions}$
+## Ubuntu Functions
 This section contains functions specific to Ubuntu systems. The functions allow you to manage the system, including checking the system's architecture, updating the system, and managing services.
 
 |Name|Description|Arguments|
@@ -104,7 +175,7 @@ This section contains functions specific to Ubuntu systems. The functions allow 
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Service}{\color{#ffffff}:}{\color{#ff7f00}Unmask}$|Unmask a service to allow it to be started again.|${\color{#ffffff}<}{\color{#9f790f}service\_name}{\color{#ffffff}>}$
 |${\color{#ff7f00}Ubuntu}{\color{#ffffff}:}{\color{#ff7f00}Services}{\color{#ffffff}:}{\color{#ff7f00}Reload}$|Reload the systemd manager configuration on Ubuntu.|
 
-## ${\color{#1d68e1}File\ Functions}$
+## File Functions
 This section contains functions specific to file management. The functions allow you to set permissions, flags, and retrieve file system information.
 
 |Name|Description|Arguments|
@@ -160,7 +231,7 @@ This section contains functions specific to file management. The functions allow
 |${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Unset}{\color{#ffffff}:}{\color{#1d68e1}Immutable}$|Unset the immutable flag of a file (allow modifications).|${\color{#ffffff}<}{\color{#9f790f}file\_path}{\color{#ffffff}>}$
 |${\color{#1d68e1}File}{\color{#ffffff}:}{\color{#1d68e1}Writable}$|Check if a file is writable.|${\color{#ffffff}<}{\color{#9f790f}file\_path}{\color{#ffffff}>}$
 
-## ${\color{#0086f4}Folder\ Functions}$
+## Folder Functions
 This section contains functions specific to folder management. The functions allow you to create, delete, check existence, and retrieve information about folders.
 
 |Name|Description|Arguments|
