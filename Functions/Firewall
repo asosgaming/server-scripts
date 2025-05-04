@@ -1,10 +1,10 @@
 
-# --------------------------------------------------------------
-#DESC: Check if firewall is active
-# --------------------------------------------------------------
-#USAGE: Firewall:Active
-#RETURN: $TRUE if the firewall is active, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if firewall is active
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Active
+#? #RETURN: $TRUE if the firewall is active, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Active() {
     if systemctl is-active --quiet firewalld; then
         Output:Success "Firewall is running."
@@ -15,12 +15,12 @@ Firewall:Active() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if firewall is inactive
-# --------------------------------------------------------------
-#USAGE: Firewall:Inactive
-#RETURN: $TRUE if the firewall is inactive, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if firewall is inactive
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Inactive
+#? #RETURN: $TRUE if the firewall is inactive, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Inactive() {
     if systemctl is-active --quiet firewalld; then
         Output:Error "Firewall is running."
@@ -31,12 +31,12 @@ Firewall:Inactive() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if firewall zone exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone <zone_name>
-#RETURN: $TRUE if the zone exists, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if firewall zone exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone <zone_name>
+#? #RETURN: $TRUE if the zone exists, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Zone() {
     local zone_name="$1"
     if [ -z "${zone_name}" ]; then
@@ -53,12 +53,12 @@ Firewall:Zone() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Delete firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Delete <zone_name>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Delete firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Delete <zone_name>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Delete() {
     local zone_name="$1"
     if [ -z "${zone_name}" ]; then
@@ -81,12 +81,12 @@ Firewall:Zone:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Create firewall zone if it does not exist
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Create <zone_name>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Create firewall zone if it does not exist
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Create <zone_name>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Create() {
     local zone_name="$1"
     if [ -z "${zone_name}" ]; then
@@ -109,12 +109,12 @@ Firewall:Zone:Create() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if source attached to firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Source <zone_name> <source>
-#RETURN: $TRUE if the subnet is attached, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if source attached to firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Source <zone_name> <source>
+#? #RETURN: $TRUE if the subnet is attached, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Zone:Source() {
     local zone_name="$1"
     local source="$2"
@@ -132,12 +132,12 @@ Firewall:Zone:Source() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Add source to firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Source:Add <zone_name> <source>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Add source to firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Source:Add <zone_name> <source>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Source:Add() {
     local zone_name="$1"
     local source="$2"
@@ -161,12 +161,12 @@ Firewall:Zone:Source:Add() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Remove source from firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Source:Delete <zone_name> <source>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Remove source from firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Source:Delete <zone_name> <source>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Source:Delete() {
     local zone_name="$1"
     local source="$2"
@@ -190,12 +190,12 @@ Firewall:Zone:Source:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if interface attached to firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Interface <zone_name> <interface_name>
-#RETURN: $TRUE if the interface is attached, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if interface attached to firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Interface <zone_name> <interface_name>
+#? #RETURN: $TRUE if the interface is attached, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Zone:Interface() {
     local zone_name="$1"
     local interface_name="$2"
@@ -213,13 +213,13 @@ Firewall:Zone:Interface() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Get list of interfaces attached to firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Interfaces <zone_name> <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Get list of interfaces attached to firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Interfaces <zone_name> <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Interfaces() {
     local zone_name="$1"
     local variable_name="$2"
@@ -243,12 +243,12 @@ Firewall:Zone:Interfaces() {
         return $FALSE
     fi
 }
-# --------------------------------------------------------------
-#DESC: Add interface to firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Interface:Add <zone_name> <interface_name>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Add interface to firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Interface:Add <zone_name> <interface_name>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Interface:Add() {
     local zone_name="$1"
     local interface_name="$2"
@@ -272,12 +272,12 @@ Firewall:Zone:Interface:Add() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Remove interface from firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Interface:Delete <zone_name> <interface_name>
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Remove interface from firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Interface:Delete <zone_name> <interface_name>
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Interface:Delete() {
     local zone_name="$1"
     local interface_name="$2"
@@ -301,14 +301,14 @@ Firewall:Zone:Interface:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Set target of firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Target <zone_name> "<target> or <variable_name>"
-#INFO: Target can be one of: default, ACCEPT, DROP, REJECT
-#INFO: If target is not one of the above, it is treated as a variable name
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Set target of firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Target <zone_name> "<target> or <variable_name>"
+#? #INFO: Target can be one of: default, ACCEPT, DROP, REJECT
+#? #INFO: If target is not one of the above, it is treated as a variable name
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Target() {
     local zone_name="$1"
     local target="$2"
@@ -345,13 +345,13 @@ Firewall:Zone:Target() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Add port to firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Port:Add <zone_name> "<port>/<protocol>"
-#INFO: Protocol can be tcp or udp
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Add port to firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Port:Add <zone_name> "<port>/<protocol>"
+#? #INFO: Protocol can be tcp or udp
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Port:Add() {
     local zone_name="$1"
     local port="$2"
@@ -375,13 +375,13 @@ Firewall:Zone:Port:Add() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Remove port from firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Port:Delete <zone_name> "<port>/<protocol>"
-#INFO: Protocol can be tcp or udp
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Remove port from firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Port:Delete <zone_name> "<port>/<protocol>"
+#? #INFO: Protocol can be tcp or udp
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Port:Delete() {
     local zone_name="$1"
     local port="$2"
@@ -405,13 +405,13 @@ Firewall:Zone:Port:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: List all ports in firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Ports <zone_name> <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: List all ports in firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Ports <zone_name> <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Ports() {
     local zone_name="$1"
     local variable_name="$2"
@@ -436,13 +436,13 @@ Firewall:Zone:Ports() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: List all protocols in firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Protocols <zone_name> <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: List all protocols in firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Protocols <zone_name> <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Protocols() {
     local zone_name="$1"
     local variable_name="$2"
@@ -467,13 +467,13 @@ Firewall:Zone:Protocols() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Add protocol to firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Protocol:Add <zone_name> <protocol>
-#INFO: Protocol can be tcp or udp
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Add protocol to firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Protocol:Add <zone_name> <protocol>
+#? #INFO: Protocol can be tcp or udp
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Protocol:Add() {
     local zone_name="$1"
     local protocol="$2"
@@ -497,13 +497,13 @@ Firewall:Zone:Protocol:Add() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Remove protocol from firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Protocol:Delete <zone_name> <protocol>
-#INFO: Protocol can be tcp or udp
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Remove protocol from firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Protocol:Delete <zone_name> <protocol>
+#? #INFO: Protocol can be tcp or udp
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Protocol:Delete() {
     local zone_name="$1"
     local protocol="$2"
@@ -527,13 +527,13 @@ Firewall:Zone:Protocol:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: List all services in firewall zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Services <zone_name> <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: List all services in firewall zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Services <zone_name> <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Services() {
     local zone_name="$1"
     local variable_name="$2"
@@ -558,13 +558,13 @@ Firewall:Zone:Services() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Add service to firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Service:Add <zone_name> <service_name>
-#INFO: Service name should be a valid service defined in /etc/firewalld/services/
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Add service to firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Service:Add <zone_name> <service_name>
+#? #INFO: Service name should be a valid service defined in /etc/firewalld/services/
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Service:Add() {
     local zone_name="$1"
     local service_name="$2"
@@ -588,13 +588,13 @@ Firewall:Zone:Service:Add() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Remove service from firewall zone if it exists
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Service:Delete <zone_name> <service_name>
-#INFO: Service name should be a valid service defined in /etc/firewalld/services/
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Remove service from firewall zone if it exists
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Service:Delete <zone_name> <service_name>
+#? #INFO: Service name should be a valid service defined in /etc/firewalld/services/
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zone:Service:Delete() {
     local zone_name="$1"
     local service_name="$2"
@@ -618,12 +618,12 @@ Firewall:Zone:Service:Delete() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if service is set in zone
-# --------------------------------------------------------------
-#USAGE: Firewall:Zone:Service <zone_name> <service_name>
-#RETURN: $TRUE if the service exists in the zone, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if service is set in zone
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zone:Service <zone_name> <service_name>
+#? #RETURN: $TRUE if the service exists in the zone, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Zone:Service() {
     local zone_name="$1"
     local service_name="$2"
@@ -641,13 +641,13 @@ Firewall:Zone:Service() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Get list of all firewall zones
-# --------------------------------------------------------------
-#USAGE: Firewall:Zones <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Get list of all firewall zones
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zones <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zones() {
     local variable_name="$1"
     local zones=$(firewall-cmd --get-zones)
@@ -663,13 +663,13 @@ Firewall:Zones() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Get list of all active firewall zones
-# --------------------------------------------------------------
-#USAGE: Firewall:Zones:Active <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Get list of all active firewall zones
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Zones:Active <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Zones:Active() {
     local variable_name="$1"
     local active_zones=$(firewall-cmd --get-active-zones)
@@ -685,13 +685,13 @@ Firewall:Zones:Active() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Get list of all services available in firewall
-# --------------------------------------------------------------
-#USAGE: Firewall:Services <variable_name>
-#INFO: If variable_name is provided, the list will be stored in that variable
-#RETURN: $TRUE on success, $FALSE on failure
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Get list of all services available in firewall
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Services <variable_name>
+#? #INFO: If variable_name is provided, the list will be stored in that variable
+#? #RETURN: $TRUE on success, $FALSE on failure
+#* --------------------------------------------------------------
 Firewall:Services() {
     local variable_name="$1"
     local services=$(firewall-cmd --get-services)
@@ -707,12 +707,12 @@ Firewall:Services() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if firewall is running
-# --------------------------------------------------------------
-#USAGE: Firewall:Running
-#RETURN: $TRUE if the firewall is running, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if firewall is running
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Running
+#? #RETURN: $TRUE if the firewall is running, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Running() {
     if systemctl is-active --quiet firewalld; then
         Output:Success "Firewall is running."
@@ -723,12 +723,12 @@ Firewall:Running() {
     fi
 }
 
-# --------------------------------------------------------------
-#DESC: Check if service name is valid
-# --------------------------------------------------------------
-#USAGE: Firewall:Service <service_name>
-#RETURN: $TRUE if the service name is valid, $FALSE otherwise
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Check if service name is valid
+#? --------------------------------------------------------------
+#? #USAGE: Firewall:Service <service_name>
+#? #RETURN: $TRUE if the service name is valid, $FALSE otherwise
+#* --------------------------------------------------------------
 Firewall:Service() {
     local service_name="$1"
     if [ -z "${service_name}" ]; then
