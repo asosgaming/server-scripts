@@ -1,10 +1,9 @@
-# > >(Log:Output) 2> >(Log:Error)
 
-# --------------------------------------------------------------
-#DESC: Log standard error messages to a log file
-# --------------------------------------------------------------
-#USAGE: > >(Log:Output) 2> >(Log:Error)
-# --------------------------------------------------------------
+#* --------------------------------------------------------------
+#? #DESC: Log standard error messages to a log file
+#? --------------------------------------------------------------
+#? #USAGE: > >(Log:Output) 2> >(Log:Error)
+#* --------------------------------------------------------------
 Log:Error() {
     local log_file="${LOG_ERROR:-${LOG_FILE}}"
     log_file="${log_file:-/dev/null}"
@@ -13,11 +12,11 @@ Log:Error() {
     done
 }
 
-# ---------------------------------------------------------------
-#DESC: Log standard output messages to a log file
-# ---------------------------------------------------------------
-#USAGE: > >(Log:Output) 2> >(Log:Error)
-# ---------------------------------------------------------------
+#* ---------------------------------------------------------------
+#? #DESC: Log standard output messages to a log file
+#? ---------------------------------------------------------------
+#? #USAGE: > >(Log:Output) 2> >(Log:Error)
+#* ---------------------------------------------------------------
 Log:Output() {
     local log_file="${LOG_FILE:-/dev/null}"
     while IFS= read -r log_line; do
@@ -25,11 +24,11 @@ Log:Output() {
     done
 }
 
-# ---------------------------------------------------------------
-#DESC: Log informational messages to a log file
-# ---------------------------------------------------------------
-#USAGE: Log:Info "Your message here" "Another message here" "And so on..."
-# ---------------------------------------------------------------
+#* ---------------------------------------------------------------
+#? #DESC: Log informational messages to a log file
+#? ---------------------------------------------------------------
+#? #USAGE: Log:Info "Your message here" "Another message here" "And so on..."
+#* ---------------------------------------------------------------
 Log:Info() {
     local log_file="${LOG_FILE:-/dev/null}"
     for log_line in "$@"; do
