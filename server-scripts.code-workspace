@@ -5,6 +5,15 @@
 		}
 	],
 	"settings": {
+		"files.associations": {
+			"Constants": "shellscript",
+			"File": "shellscript",
+			"Firewall": "shellscript",
+			"Folder": "shellscript",
+			"Log": "shellscript",
+			"Output": "shellscript",
+			"Ubuntu": "shellscript"
+		},
 		"highlight.regexes": {
 			"(Log)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
 				"decorations": [
@@ -59,6 +68,20 @@
 					{ "color": "#1d68e1" },
 					{ "color": "#ffffff" },
 					{ "color": "#1d68e1" },
+					{ "color": "#ffffff" }
+				]
+			},
+			"(Folder)(:)([A-Z][A-Za-z]+)(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(:)?([A-Z][A-Za-z]+)?(\\(\\))?": {
+				"decorations": [
+					{ "color": "#0086f4" },
+					{ "color": "#ffffff" },
+					{ "color": "#0086f4" },
+					{ "color": "#ffffff" },
+					{ "color": "#0086f4" },
+					{ "color": "#ffffff" },
+					{ "color": "#0086f4" },
+					{ "color": "#ffffff" },
+					{ "color": "#0086f4" },
 					{ "color": "#ffffff" }
 				]
 			},
@@ -268,7 +291,7 @@
 					{ "color": "#ffffff" }
 				]
 			},
-			"(^[ ]*)(if|fi|local|else|elif|return|then|case|esac|while|for)( |$)": {
+			"(^[ ]*)(declare|if|fi|local|else|elif|return|then|case|esac|while|for)( |$)": {
 				"regexFlags": "gm",
 				"decorations": [
 					{ "color": "#ffffff" },
@@ -292,7 +315,7 @@
 					{}
 				]
 			},
-			"( |\\()(chcon|getfacl|setfacl|getfattr|setfattr|apt|firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl|lsattr|chattr)( )": {
+			"( |\\()(mapfile|find|chcon|chown|chgrp|touch|getfacl|setfacl|getfattr|setfattr|apt|firewall-cmd|date|grep|sed|awk|cut|rev|test|systemd|cp|mv|rm|rmdir|mkdir|systemctl|lsattr|chattr)( )": {
 				"regexFlags": "gm",
 				"decorations": [
 					{},
@@ -309,7 +332,7 @@
 					{ "color": "#ffffff" }
 				]
 			},
-			"(\\<|\\$| )(\\{)?([!#])?(active|file|env|service|command|package|log|zone|interface|variable)(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(:\\-|%|#)?(\\}|\\>|=)?": {
+			"(\\<|\\$| )(\\{)?([!#])?(active|file|folder|env|service|command|package|log|zone|interface|variable)(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(_)?([a-z]+)?(:\\-|%|#)?(\\}|\\>|=)?": {
 				"regexFlags": "gm",
 				"decorations": [
 					{ "color": "#ffffff" },
@@ -367,11 +390,21 @@
 				]
 			},
 		},
-		"highlight.maxMatches": 3000
+		"highlight.maxMatches": 3000,
+		"material-icon-theme.files.associations": {
+			"Constants": "command",
+			"File": "command",
+			"Firewall": "command",
+			"Folder": "command",
+			"Log": "command",
+			"Output": "command",
+			"Ubuntu": "command"
+		}
 	},
 	"extensions": {
 		"recommendations": [
-			"fabiospampinato.vscode-highlight"
+			"fabiospampinato.vscode-highlight",
+			"pkief.material-icon-theme"
 		]
 	}
 }
