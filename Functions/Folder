@@ -1,0 +1,1656 @@
+
+#* ---------------------------------------------------------------
+#? #DESC: Create a folder if it does not exist
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Create <folder_path>
+#? #RETURN: $TRUE if the folder was created or already exists, $FALSE if an error occurred
+#* ---------------------------------------------------------------
+Folder:Create() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        mkdir -p "${folder_path}" > >(Log:Output) 2> >(Log:Error)
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to create ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+            return $FALSE
+        else
+            Output:Success "Created folder ${COLOR_GREEN}${folder_path}${COLOR_RESET}."
+        fi
+    else
+        Output:Info "${COLOR_YELLOW}${folder_path}${COLOR_RESET} already exists."
+    fi
+    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Delete a folder if it exists
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Delete <folder_path>
+#? #RETURN: $TRUE if the folder was deleted or did not exist, $FALSE if an error occurred
+#* ---------------------------------------------------------------
+Folder:Delete() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ -d "${folder_path}" ]]; then
+        rm -rf "${folder_path}" > >(Log:Output) 2> >(Log:Error)
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to delete ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+            return $FALSE
+        else
+            Output:Success "Deleted folder ${COLOR_GREEN}${folder_path}${COLOR_RESET}."
+        fi
+    else
+        Output:Info "${COLOR_YELLOW}${folder_path}${COLOR_RESET} does not exist."
+    fi
+    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a folder exists
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Exists <folder_path>
+#? #RETURN: $TRUE if the folder exists, $FALSE if it does not
+#* ---------------------------------------------------------------
+Folder:Exists() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ -d "${folder_path}" ]]; then
+        Output:Info "${COLOR_YELLOW}${folder_path}${COLOR_RESET} exists."
+        return $TRUE
+    else
+        Output:Warning "${COLOR_YELLOW}${folder_path}${COLOR_RESET} does not exist."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get list of content in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Content <folder_path> <folder_content_list>
+#? #RETURN: $TRUE if the content was retrieved successfully, $FALSE if an error occurred
+#* ---------------------------------------------------------------
+Folder:Content() {
+    local folder_path="$1"
+    local folder_content_list="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    declare -a ${folder_content_list}
+    mapfile -O 0 -t ${folder_content_list} < <(find "${folder_path}" -mindepth 1 -maxdepth 1)
+
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to retrieve content from ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+    if [[ ${#${folder_content_list}[@]} -eq 0 ]]; then
+        Output:Info "No content found in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+    else
+        Output:Success "Retrieved content from ${COLOR_GREEN}${folder_path}${COLOR_RESET}."
+    fi
+
+    return $TRUE    
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the size of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Size <folder_path>
+#? #RETURN: Size of the folder in bytes, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Size() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_size=$(du -sb "${folder_path}" | awk '{print $1}')
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get size of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Size of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_size}${COLOR_RESET} bytes."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the last modified time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:LastModified <folder_path>
+#? #RETURN: Last modified time of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:LastModified() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local last_modified=$(stat -c %y "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get last modified time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Last modified time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${last_modified}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the owner of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:Owner <folder_path> <folder_owner_variable>
+#? #RETURN: Owner of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:Owner() {
+    local folder_path="$1"
+    local folder_owner_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_owner=$(stat -c %U "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get owner of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_owner_variable}=\"${folder_owner}\""
+    Output:Info "Owner of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_owner}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the group of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:Group <folder_path> <folder_group_variable>
+#? #RETURN: Group of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:Group() {
+    local folder_path="$1"
+    local folder_group_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_group=$(stat -c %G "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get group of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_group_variable}=\"${folder_group}\""
+    Output:Info "Group of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_group}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the permissions of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:Permissions <folder_path> <folder_permissions_variable>
+#? #RETURN: Permissions of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:Permissions() {
+    local folder_path="$1"
+    local folder_permissions_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_permissions=$(stat -c %A "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get permissions of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_permissions_variable}=\"${folder_permissions}\""
+    Output:Info "Permissions of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} are ${COLOR_GREEN}${folder_permissions}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the absolute path of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:AbsolutePath <folder_path> <folder_absolute_path_variable>
+#? #RETURN: Absolute path of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:AbsolutePath() {
+    local folder_path="$1"
+    local folder_absolute_path_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_absolute_path=$(realpath "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get absolute path of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_absolute_path_variable}=\"${folder_absolute_path}\""
+    Output:Info "Absolute path of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_absolute_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the relative path of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:RelativePath <folder_path> <folder_relative_path_variable>
+#? #RETURN: Relative path of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:RelativePath() {
+    local folder_path="$1"
+    local folder_relative_path_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_relative_path=$(realpath --relative-to="$(pwd)" "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get relative path of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_relative_path_variable}=\"${folder_relative_path}\""
+    Output:Info "Relative path of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_relative_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the inode number of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:Inode <folder_path> <folder_inode_variable>
+#? #RETURN: Inode number of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:Inode() {
+    local folder_path="$1"
+    local folder_inode_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_inode=$(stat -c %i "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get inode of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_inode_variable}=\"${folder_inode}\""
+    Output:Info "Inode of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_inode}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCount <folder_path> <file_count_variable>
+#? #RETURN: Number of files in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCount() {
+    local folder_path="$1"
+    local file_count_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCount <folder_path> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCount() {
+    local folder_path="$1"
+    local folder_subfolder_count_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the last access time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:LastAccessed <folder_path> <folder_last_accessed_variable>
+#? #RETURN: Last access time of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:LastAccessed() {
+    local folder_path="$1"
+    local folder_last_accessed_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_last_accessed=$(stat -c %x "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get last accessed time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_last_accessed_variable}=\"${folder_last_accessed}\""
+    Output:Info "Last accessed time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_last_accessed}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the creation time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:Created <folder_path> <folder_created_variable>
+#? #RETURN: Creation time of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:Created() {
+    local folder_path="$1"
+    local folder_created_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_created=$(stat -c %W "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get creation time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_created_variable}=\"${folder_created}\""
+    Output:Info "Creation time of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_created}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the symbolic link target of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SymlinkTarget <folder_path> <folder_symlink_target_variable>
+#? #RETURN: Symbolic link target of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SymlinkTarget() {
+    local folder_path="$1"
+    local folder_symlink_target_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -L "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a symbolic link."
+        return $FALSE
+    fi
+    
+    local folder_symlink_target=$(readlink "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get symlink target of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_symlink_target_variable}=\"${folder_symlink_target}\""
+    Output:Info "Symlink target of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_symlink_target}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of hard links to a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:HardLinkCount <folder_path> <folder_hard_link_count_variable>
+#? #RETURN: Number of hard links to the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:HardLinkCount() {
+    local folder_path="$1"
+    local folder_hard_link_count_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_hard_link_count=$(stat -c %h "${folder_path}")
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get hard link count of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_hard_link_count_variable}=\"${folder_hard_link_count}\""
+    Output:Info "Number of hard links to ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_hard_link_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the file system type of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileSystemType <folder_path> <folder_filesystem_type_variable>
+#? #RETURN: File system type of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileSystemType() {
+    local folder_path="$1"
+    local folder_filesystem_type_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_filesystem_type=$(df -T "${folder_path}" | awk 'NR==2 {print $2}')
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file system type of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_filesystem_type_variable}=\"${folder_filesystem_type}\""
+    Output:Info "File system type of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_filesystem_type}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the mount point of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:MountPoint <folder_path> <folder_mount_point_variable>
+#? #RETURN: Mount point of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:MountPoint() {
+    local folder_path="$1"
+    local folder_mount_point_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_mount_point=$(df "${folder_path}" | awk 'NR==2 {print $6}')
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get mount point of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_mount_point_variable}=\"${folder_mount_point}\""
+    Output:Info "Mount point of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_mount_point}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the disk usage of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:DiskUsage <folder_path> <folder_disk_usage_variable>
+#? #RETURN: Disk usage of the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:DiskUsage() {
+    local folder_path="$1"
+    local folder_disk_usage_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_disk_usage=$(du -sh "${folder_path}" | awk '{print $1}')
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get disk usage of ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_disk_usage_variable}=\"${folder_disk_usage}\""
+    Output:Info "Disk usage of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_disk_usage}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of symbolic links in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SymlinkCount <folder_path> <folder_symlink_count_variable>
+#? #RETURN: Number of symbolic links in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SymlinkCount() {
+    local folder_path="$1"
+    local folder_symlink_count_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_symlink_count=$(find "${folder_path}" -type l | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get symlink count in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_symlink_count_variable}=\"${folder_symlink_count}\""
+    Output:Info "Number of symbolic links in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_symlink_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of hard links in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:HardLinkCount <folder_path> <folder_hard_link_count_variable>
+#? #RETURN: Number of hard links in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:HardLinkCount() {
+    local folder_path="$1"
+    local folder_hard_link_count_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_hard_link_count=$(find "${folder_path}" -type f -links +1 | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get hard link count in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_hard_link_count_variable}=\"${folder_hard_link_count}\""
+    Output:Info "Number of hard links in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_hard_link_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific extension in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByExtension <folder_path> <file_extension> <file_count_variable>
+#? #RETURN: Number of files with the specified extension in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByExtension() {
+    local folder_path="$1"
+    local file_extension="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_extension}" ]]; then
+        Output:Error "No folder path or file extension provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -name "*.${file_extension}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for extension ${COLOR_YELLOW}${file_extension}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files with extension ${COLOR_YELLOW}.${file_extension}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific name in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByName <folder_path> <folder_subfolder_name> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified name in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByName() {
+    local folder_path="$1"
+    local folder_subfolder_name="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_subfolder_name}" ]]; then
+        Output:Error "No folder path or subfolder name provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -name "${folder_subfolder_name}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for name ${COLOR_YELLOW}${folder_subfolder_name}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders named ${COLOR_YELLOW}${folder_subfolder_name}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific name in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByName <folder_path> <file_name> <file_count_variable>
+#? #RETURN: Number of files with the specified name in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByName() {
+    local folder_path="$1"
+    local file_name="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_name}" ]]; then
+        Output:Error "No folder path or file name provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -name "${file_name}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for name ${COLOR_YELLOW}${file_name}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files named ${COLOR_YELLOW}${file_name}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific size in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountBySize <folder_path> <file_size> <file_count_variable>
+#? #RETURN: Number of files with the specified size in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountBySize() {
+    local folder_path="$1"
+    local file_size="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_size}" ]]; then
+        Output:Error "No folder path or file size provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -size "${file_size}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for size ${COLOR_YELLOW}${file_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files with size ${COLOR_YELLOW}${file_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific permission in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByPermission <folder_path> <file_permission> <file_count_variable>
+#? #RETURN: Number of files with the specified permission in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByPermission() {
+    local folder_path="$1"
+    local file_permission="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_permission}" ]]; then
+        Output:Error "No folder path or file permission provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -perm "${file_permission}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for permission ${COLOR_YELLOW}${file_permission}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files with permission ${COLOR_YELLOW}${file_permission}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific permission in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByPermission <folder_path> <folder_permission> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified permission in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByPermission() {
+    local folder_path="$1"
+    local folder_permission="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_permission}" ]]; then
+        Output:Error "No folder path or permission provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -perm "${folder_permission}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for permission ${COLOR_YELLOW}${folder_permission}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders with permission ${COLOR_YELLOW}${folder_permission}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific owner in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByOwner <folder_path> <file_owner> <file_count_variable>
+#? #RETURN: Number of files with the specified owner in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByOwner() {
+    local folder_path="$1"
+    local file_owner="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_owner}" ]]; then
+        Output:Error "No folder path or file owner provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -user "${file_owner}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for owner ${COLOR_YELLOW}${file_owner}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files owned by ${COLOR_YELLOW}${file_owner}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific owner in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByOwner <folder_path> <folder_owner> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified owner in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByOwner() {
+    local folder_path="$1"
+    local folder_owner="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_owner}" ]]; then
+        Output:Error "No folder path or owner provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -user "${folder_owner}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for owner ${COLOR_YELLOW}${folder_owner}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders owned by ${COLOR_YELLOW}${folder_owner}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific group in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByGroup <folder_path> <file_group> <file_count_variable>
+#? #RETURN: Number of files with the specified group in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByGroup() {
+    local folder_path="$1"
+    local file_group="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_group}" ]]; then
+        Output:Error "No folder path or file group provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -group "${file_group}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for group ${COLOR_YELLOW}${file_group}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files belonging to group ${COLOR_YELLOW}${file_group}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific group in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByGroup <folder_path> <folder_group> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified group in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByGroup() {
+    local folder_path="$1"
+    local folder_group="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_group}" ]]; then
+        Output:Error "No folder path or group provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -group "${folder_group}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for group ${COLOR_YELLOW}${folder_group}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders belonging to group ${COLOR_YELLOW}${folder_group}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific size range in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountBySizeRange <folder_path> <file_min_size> <file_max_size> <file_count_variable>
+#? #RETURN: Number of files within the specified size range in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountBySizeRange() {
+    local folder_path="$1"
+    local file_min_size="$2"
+    local file_max_size="$3"
+    local file_count_variable="$4"
+    
+    if [[ -z "${folder_path}" || -z "${file_min_size}" || -z "${file_max_size}" ]]; then
+        Output:Error "No folder path or size range provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -size +"${file_min_size}"c -size -"${file_max_size}"c | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for size range ${COLOR_YELLOW}${file_min_size}-${file_max_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files with size between ${COLOR_YELLOW}${file_min_size}${COLOR_RESET} and ${COLOR_YELLOW}${file_max_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific size range in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountBySizeRange <folder_path> <folder_min_size> <folder_max_size> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders within the specified size range in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountBySizeRange() {
+    local folder_path="$1"
+    local folder_min_size="$2"
+    local folder_max_size="$3"
+    local folder_subfolder_count_variable="$4"
+    
+    if [[ -z "${folder_path}" || -z "${folder_min_size}" || -z "${folder_max_size}" ]]; then
+        Output:Error "No folder path or size range provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -size +"${folder_min_size}"c -size -"${folder_max_size}"c | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for size range ${COLOR_YELLOW}${folder_min_size}-${folder_max_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders with size between ${COLOR_YELLOW}${folder_min_size}${COLOR_RESET} and ${COLOR_YELLOW}${folder_max_size}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific modification time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByModificationTime <folder_path> <file_modification_time> <file_count_variable>
+#? #RETURN: Number of files with the specified modification time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByModificationTime() {
+    local folder_path="$1"
+    local file_modification_time="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_modification_time}" ]]; then
+        Output:Error "No folder path or modification time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -newermt "${file_modification_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for modification time ${COLOR_YELLOW}${file_modification_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files modified after ${COLOR_YELLOW}${file_modification_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific modification time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByModificationTime <folder_path> <folder_modification_time> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified modification time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByModificationTime() {
+    local folder_path="$1"
+    local folder_modification_time="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_modification_time}" ]]; then
+        Output:Error "No folder path or modification time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -newermt "${folder_modification_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for modification time ${COLOR_YELLOW}${folder_modification_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders modified after ${COLOR_YELLOW}${folder_modification_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific creation time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByCreationTime <folder_path> <file_creation_time> <file_count_variable>
+#? #RETURN: Number of files with the specified creation time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByCreationTime() {
+    local folder_path="$1"
+    local file_creation_time="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_creation_time}" ]]; then
+        Output:Error "No folder path or creation time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -newerct "${file_creation_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for creation time ${COLOR_YELLOW}${file_creation_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files created after ${COLOR_YELLOW}${file_creation_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific creation time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByCreationTime <folder_path> <folder_creation_time> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified creation time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByCreationTime() {
+    local folder_path="$1"
+    local folder_creation_time="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_creation_time}" ]]; then
+        Output:Error "No folder path or creation time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -newerct "${folder_creation_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for creation time ${COLOR_YELLOW}${folder_creation_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders created after ${COLOR_YELLOW}${folder_creation_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of files with a specific access time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:FileCountByAccessTime <folder_path> <file_access_time> <file_count_variable>
+#? #RETURN: Number of files with the specified access time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:FileCountByAccessTime() {
+    local folder_path="$1"
+    local file_access_time="$2"
+    local file_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${file_access_time}" ]]; then
+        Output:Error "No folder path or access time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local file_count=$(find "${folder_path}" -type f -anewer "${file_access_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get file count for access time ${COLOR_YELLOW}${file_access_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${file_count_variable}=\"${file_count}\""
+    Output:Info "Number of files accessed after ${COLOR_YELLOW}${file_access_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${file_count}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the number of subfolders with a specific access time in a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:SubfolderCountByAccessTime <folder_path> <folder_access_time> <folder_subfolder_count_variable>
+#? #RETURN: Number of subfolders with the specified access time in the folder, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:SubfolderCountByAccessTime() {
+    local folder_path="$1"
+    local folder_access_time="$2"
+    local folder_subfolder_count_variable="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_access_time}" ]]; then
+        Output:Error "No folder path or access time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_subfolder_count=$(find "${folder_path}" -mindepth 1 -maxdepth 1 -type d -anewer "${folder_access_time}" | wc -l)
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get subfolder count for access time ${COLOR_YELLOW}${folder_access_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_subfolder_count_variable}=\"${folder_subfolder_count}\""
+    Output:Info "Number of subfolders accessed after ${COLOR_YELLOW}${folder_access_time}${COLOR_RESET} in ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_subfolder_count}${COLOR_RESET}."
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Get the disk usage of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Get:DiskUsage <folder_path> <folder_disk_usage_variable>
+#? #RETURN: Disk usage of the folder in human-readable format, or an error message if it fails
+#* ---------------------------------------------------------------
+Folder:Get:DiskUsage() {
+    local folder_path="$1"
+    local folder_disk_usage_variable="$2"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    local folder_disk_usage=$(du -sh "${folder_path}" 2>/dev/null | awk '{print $1}')
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to get disk usage for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    eval "${folder_disk_usage_variable}=\"${folder_disk_usage}\""
+    Output:Info "Disk usage of ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is ${COLOR_GREEN}${folder_disk_usage}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if a folder is empty
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Empty <folder_path>
+#? #RETURN: True if the folder is empty, false otherwise
+#* ---------------------------------------------------------------
+Folder:Empty() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    if [[ -z "$(ls -A "${folder_path}")" ]]; then
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is empty."
+        return $TRUE
+    else
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not empty."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the permissions of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Set:Permissions <folder_path> <folder_permissions>
+#? #RETURN: True if the permissions were set successfully, false otherwise
+#* ---------------------------------------------------------------
+Folder:Set:Permissions() {
+    local folder_path="$1"
+    local folder_permissions="$2"
+    
+    if [[ -z "${folder_path}" || -z "${folder_permissions}" ]]; then
+        Output:Error "No folder path or permissions provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    chmod "${folder_permissions}" "${folder_path}"
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to set permissions ${COLOR_YELLOW}${folder_permissions}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Permissions ${COLOR_YELLOW}${folder_permissions}${COLOR_RESET} set for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the ownership of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Set:Ownership <folder_path> <folder_owner> <folder_group>
+#? #INFO: Sets the owner of the folder to the specified user and optionally group
+#? #RETURN: True if the ownership was set successfully, false otherwise
+#* ---------------------------------------------------------------
+Folder:Set:Ownership() {
+    local folder_path="$1"
+    local folder_owner="$2"
+    local folder_group="$3"
+    
+    if [[ -z "${folder_path}" || -z "${folder_owner}" ]]; then
+        Output:Error "No folder path or owner provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    chown "${folder_owner}" "${folder_path}"
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to set owner ${COLOR_YELLOW}${folder_owner}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    if [[ -n "${folder_group}" ]]; then
+        chgrp "${folder_group}" "${folder_path}"
+        
+        if [[ $? -ne 0 ]]; then
+            Output:Error "Failed to set group ${COLOR_YELLOW}${folder_group}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+            return $FALSE
+        fi
+    fi
+
+    Output:Info "Ownership set to ${COLOR_YELLOW}${folder_owner}:${folder_group:-'none'}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the access time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Set:AccessTime <folder_path> <folder_access_time>
+#? #RETURN: True if the access time was set successfully, false otherwise
+#* ---------------------------------------------------------------
+Folder:Set:AccessTime() {
+    local folder_path="$1"
+    local folder_access_time="$2"
+    
+    if [[ -z "${folder_path}" || -z "${folder_access_time}" ]]; then
+        Output:Error "No folder path or access time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    touch -a -t "${folder_access_time}" "${folder_path}"
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to set access time ${COLOR_YELLOW}${folder_access_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Access time set to ${COLOR_YELLOW}${folder_access_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the modification time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Set:ModificationTime <folder_path> <folder_modification_time>
+#? #RETURN: True if the modification time was set successfully, false otherwise
+#* ---------------------------------------------------------------
+Folder:Set:ModificationTime() {
+    local folder_path="$1"
+    local folder_modification_time="$2"
+    
+    if [[ -z "${folder_path}" || -z "${folder_modification_time}" ]]; then
+        Output:Error "No folder path or modification time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    touch -m -t "${folder_modification_time}" "${folder_path}"
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to set modification time ${COLOR_YELLOW}${folder_modification_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Modification time set to ${COLOR_YELLOW}${folder_modification_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Set the creation time of a folder
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Set:CreationTime <folder_path> <folder_creation_time>
+#? #RETURN: True if the creation time was set successfully, false otherwise
+#* ---------------------------------------------------------------
+Folder:Set:CreationTime() {
+    local folder_path="$1"
+    local folder_creation_time="$2"
+    
+    if [[ -z "${folder_path}" || -z "${folder_creation_time}" ]]; then
+        Output:Error "No folder path or creation time provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    touch -t "${folder_creation_time}" "${folder_path}"
+    
+    if [[ $? -ne 0 ]]; then
+        Output:Error "Failed to set creation time ${COLOR_YELLOW}${folder_creation_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."
+        return $FALSE
+    fi
+
+    Output:Info "Creation time set to ${COLOR_YELLOW}${folder_creation_time}${COLOR_RESET} for ${COLOR_YELLOW}${folder_path}${COLOR_RESET}."    
+    return $TRUE
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if folder is readable
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Readable <folder_path>
+#? #RETURN: True if the folder is readable, false otherwise
+#* ---------------------------------------------------------------
+Folder:Readable() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    if [[ -r "${folder_path}" ]]; then
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is readable."
+        return $TRUE
+    else
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not readable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if folder is writable
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Writable <folder_path>
+#? #RETURN: True if the folder is writable, false otherwise
+#* ---------------------------------------------------------------
+Folder:Writable() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    if [[ -w "${folder_path}" ]]; then
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is writable."
+        return $TRUE
+    else
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not writable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if folder is executable
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Executable <folder_path>
+#? #RETURN: True if the folder is executable, false otherwise
+#* ---------------------------------------------------------------
+Folder:Executable() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    if [[ -x "${folder_path}" ]]; then
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is executable."
+        return $TRUE
+    else
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not executable."
+        return $FALSE
+    fi
+}
+
+#* ---------------------------------------------------------------
+#? #DESC: Check if folder is readable, writable, and executable
+#? ---------------------------------------------------------------
+#? #USAGE: Folder:Valid <folder_path>
+#? #RETURN: True if the folder is readable, writable, and executable, false otherwise
+#* ---------------------------------------------------------------
+Folder:Valid() {
+    local folder_path="$1"
+    
+    if [[ -z "${folder_path}" ]]; then
+        Output:Error "No folder path provided."
+        return $FALSE
+    fi
+    
+    if [[ ! -d "${folder_path}" ]]; then
+        Output:Error "${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not a valid directory."
+        return $FALSE
+    fi
+    
+    if [[ -r "${folder_path}" && -w "${folder_path}" && -x "${folder_path}" ]]; then
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is valid (readable, writable, and executable)."
+        return $TRUE
+    else
+        Output:Info "The folder ${COLOR_YELLOW}${folder_path}${COLOR_RESET} is not valid (not readable, writable, or executable)."
+        return $FALSE
+    fi
+}
+
